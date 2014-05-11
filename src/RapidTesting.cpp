@@ -9,12 +9,14 @@
 #include <opencv2/imgproc/imgproc_c.h>
 #include <opencv2/highgui/highgui_c.h>
 
+#include "EdgeExtractor.hpp"
 // Model traits and its handling methods
 #include "Model.hpp"
 // Algorithm wrapper
 #include "RAPIDTracker.hpp"
 #include "RansacTracker.hpp"
-#include "RAPIDTrackerExperiment.hpp"
+#include "RAPIDTrackerExperiment_all_k_subsets.hpp"
+#include "RAPIDTrackerExperiment_rand_subsets.hpp"
 
 using std::cout;
 using std::cerr;
@@ -36,29 +38,53 @@ Usage:\n\
 	" << endl;
 }
 
-class RAPIDTestingTracker : public RAPIDTracker
+class EdgeExtractorStub : virtual public EdgeExtractor
 {
 public:
-	RAPIDTestingTracker(Model& _model, bool _isLogsEnabled) : RAPIDTracker(_model, _isLogsEnabled) { }
-
-    virtual void GetAndDrawCanny(cv::Mat& edges) const {}
+    virtual void GetAndDrawCanny(cv::Mat& edges) const
+    { }
 };
 
-class RAPIDTestingTrackerExperiment : public RAPIDTrackerExperiment
+class RAPIDTestingTracker : public RAPIDTracker, protected EdgeExtractorStub
 {
 public:
-	RAPIDTestingTrackerExperiment(Model& _model, bool _isLogsEnabled) : RAPIDTrackerExperiment(_model, _isLogsEnabled) { }
-
-    virtual void GetAndDrawCanny(cv::Mat& edges) const {}
+	RAPIDTestingTracker(
+		Model& _model, 
+		bool _isLogsEnabled)
+		:	RAPIDTracker(_model, _isLogsEnabled) { }
 };
 
-class RansacTestingTracker: public RansacTracker
+class RAPIDTestingTrackerExperiment_rand_subsets : public RAPIDTrackerExperiment_rand_subsets, protected EdgeExtractorStub
 {
 public:
-	RansacTestingTracker(Model model, bool _isLogsEnabled, int iterationsCount, float reprojectionError, int minInliersCount) :
-        RansacTracker( model, _isLogsEnabled, iterationsCount, reprojectionError, minInliersCount) { }
+	RAPIDTestingTrackerExperiment_rand_subsets(
+		Model& _model, 
+		bool _isLogsEnabled,
+		unsigned int _k,
+		unsigned int _count)
+		:	RAPIDTrackerExperiment_rand_subsets(_model, _isLogsEnabled, _k, _count) { }
+};
 
-    virtual void GetAndDrawCanny(cv::Mat& edges) const {}
+class RAPIDTestingTrackerExperiment_all_k_subsets : public RAPIDTrackerExperiment_all_k_subsets, protected EdgeExtractorStub
+{
+public:
+	RAPIDTestingTrackerExperiment_all_k_subsets(
+		Model& _model, 
+		bool _isLogsEnabled,
+		unsigned int _k)
+		:	RAPIDTrackerExperiment_all_k_subsets(_model, _isLogsEnabled, _k) { }
+};
+
+class RansacTestingTracker: public RansacTracker, protected EdgeExtractorStub
+{
+public:
+	RansacTestingTracker(
+		Model model, 
+		bool _isLogsEnabled, 
+		int iterationsCount, 
+		float reprojectionError,
+		int minInliersCount)
+		:	RansacTracker( model, _isLogsEnabled, iterationsCount, reprojectionError, minInliersCount) { }
 };
 
 class RapidTestingModel : public Model
@@ -254,8 +280,11 @@ int main(int argn, char* argv[])
 	FakeMovie movie(fakeMovieScenario, GetHardcodedModel(isLogsEnabled), VideoHeight, VideoWidth);
 	//movie.Play();
 
+	int n = model.GetNumberControlPoints();
+
     //RAPIDTestingTracker tracker(model, isLogsEnabled);
-    //RAPIDTestingTrackerExperiment tracker(model, isLogsEnabled);
+    //RAPIDTestingTrackerExperiment_rand_subsets tracker(model, isLogsEnabled, n, n/2);
+	RAPIDTestingTrackerExperiment_all_k_subsets tracker(model, isLogsEnabled, 4);
 
     //RansacTracker tracker(model, isLogsEnabled, 10, 0.5, 1); // crash occurs on 2 frame
     //RansacTracker tracker(model, isLogsEnabled, 10, 8, 10); // crash occurs on 6 frame
@@ -265,7 +294,7 @@ int main(int argn, char* argv[])
     //RansacTracker tracker(model, isLogsEnabled, 100, 0.5, 20); // incorrect defenition of pose since 15 frame (crash on 22), but interesting to see
     //RansacTracker tracker(model, isLogsEnabled, 1000, 0.5, 20); // incorrect defenition of pose since 15 frame. Lasts much longer
 
-    RansacTestingTracker tracker(model, isLogsEnabled, 100, 8, 20); // works without crashes.
+    //RansacTestingTracker tracker(model, isLogsEnabled, 100, 8, 20); // works without crashes.
 
     //RansacTestingTracker tracker(model, isLogsEnabled, 10, 0.5, 1); // crash occurs on 2 frame
     //RansacTestingTracker tracker(model, isLogsEnabled, 10, 8, 10); // incorrect defenition of pose since 4 frame (crash on 7)
@@ -303,7 +332,7 @@ int main(int argn, char* argv[])
 
             Mat temp = Mat::zeros(3, 1, CV_64F);//Fake point of pattern
             model.DrawReferencePoints(movieFrame, temp, frameNumber, i);
-	        waitKey(1);
+	        waitKey();
         }
     }
 

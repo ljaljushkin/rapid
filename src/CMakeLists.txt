@@ -12,16 +12,21 @@ set( CORE_HEADERS_LIB
 	Model.hpp
 	RAPIDTracker.hpp
 	RAPIDTrackerExperiment.hpp
+	RAPIDTrackerExperiment_all_k_subsets.hpp
+	RAPIDTrackerExperiment_rand_subsets.hpp
 	VideoInfo.hpp
 	VideoInfoBase.hpp
 	Util.hpp
 	Tracker.hpp
-	RansacTracker.hpp )
+	RansacTracker.hpp
+	EdgeExtractor.hpp )
 add_library( CORE_LIB
 	${CORE_HEADERS_LIB}
 	Model.cpp
 	RAPIDTracker.cpp
 	RAPIDTrackerExperiment.cpp
+	RAPIDTrackerExperiment_all_k_subsets.cpp
+	RAPIDTrackerExperiment_rand_subsets.cpp
 	VideoInfo.cpp
 	Tracker.cpp 
 	RansacTracker.cpp )
