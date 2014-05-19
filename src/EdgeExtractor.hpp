@@ -13,6 +13,7 @@ public:
     {
         cv::GaussianBlur(edges, edges, cv::Size(7,7), 1.5, 1.5);
         cv::Canny(edges, edges, 20, 100, 3);
+        //cv::Canny(edges, edges, 10, 60, 3);
 
         cv::namedWindow("canny", CV_WINDOW_AUTOSIZE);
         cv::imshow("canny",edges);

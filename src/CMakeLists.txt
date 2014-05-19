@@ -18,7 +18,8 @@ set( CORE_HEADERS_LIB
 	VideoInfoBase.hpp
 	Util.hpp
 	Tracker.hpp
-	RansacTracker.hpp
+    RansacTracker.hpp
+    CvRansacTracker.hpp
 	EdgeExtractor.hpp )
 add_library( CORE_LIB
 	${CORE_HEADERS_LIB}
@@ -28,8 +29,9 @@ add_library( CORE_LIB
 	RAPIDTrackerExperiment_all_k_subsets.cpp
 	RAPIDTrackerExperiment_rand_subsets.cpp
 	VideoInfo.cpp
-	Tracker.cpp 
-	RansacTracker.cpp )
+	Tracker.cpp
+    RansacTracker.cpp
+    CvRansacTracker.cpp )
 
 ################################
 # RAPID

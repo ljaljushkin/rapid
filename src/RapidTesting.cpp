@@ -15,6 +15,7 @@
 // Algorithm wrapper
 #include "RAPIDTracker.hpp"
 #include "RansacTracker.hpp"
+#include "CvRansacTracker.hpp"
 #include "RAPIDTrackerExperiment_all_k_subsets.hpp"
 #include "RAPIDTrackerExperiment_rand_subsets.hpp"
 
@@ -75,16 +76,16 @@ public:
 		:	RAPIDTrackerExperiment_all_k_subsets(_model, _isLogsEnabled, _k) { }
 };
 
-class RansacTestingTracker: public RansacTracker, protected EdgeExtractorStub
+class CvRansacTestingTracker: public CvRansacTracker, protected EdgeExtractorStub
 {
 public:
-	RansacTestingTracker(
+	CvRansacTestingTracker(
 		Model model, 
 		bool _isLogsEnabled, 
 		int iterationsCount, 
 		float reprojectionError,
 		int minInliersCount)
-		:	RansacTracker( model, _isLogsEnabled, iterationsCount, reprojectionError, minInliersCount) { }
+		:	CvRansacTracker( model, _isLogsEnabled, iterationsCount, reprojectionError, minInliersCount) { }
 };
 
 class RapidTestingModel : public Model
@@ -274,7 +275,7 @@ int main(int argn, char* argv[])
             // interesting to see, robustness! some control points are shown, then are disappeared, then are shown and are disappeared again.
             // but works good with SolvePnP and RansacSolvePnP
             // with tVec["default"];
-        fakeMovieScenario.push_back(movementVector6D["bigTranslate"]);
+        fakeMovieScenario.push_back(movementVector6D["oneDirectionRotateZs"]);
     }
 
 	FakeMovie movie(fakeMovieScenario, GetHardcodedModel(isLogsEnabled), VideoHeight, VideoWidth);
@@ -284,24 +285,24 @@ int main(int argn, char* argv[])
 
     //RAPIDTestingTracker tracker(model, isLogsEnabled);
     //RAPIDTestingTrackerExperiment_rand_subsets tracker(model, isLogsEnabled, n, n/2);
-	RAPIDTestingTrackerExperiment_all_k_subsets tracker(model, isLogsEnabled, 4);
+	//RAPIDTestingTrackerExperiment_all_k_subsets tracker(model, isLogsEnabled, 4);
 
-    //RansacTracker tracker(model, isLogsEnabled, 10, 0.5, 1); // crash occurs on 2 frame
-    //RansacTracker tracker(model, isLogsEnabled, 10, 8, 10); // crash occurs on 6 frame
-    //RansacTracker tracker(model, isLogsEnabled, 10, 8, 20); // crash occurs on 47 frame
-    //RansacTracker tracker(model, isLogsEnabled, 100, 8, 20); // works without crashes as long as there will be no points (119 frame)
-    //RansacTracker tracker(model, isLogsEnabled, 100, 8, 5); // incorrect defenition of pose since 32 frame, but interesting to see
-    //RansacTracker tracker(model, isLogsEnabled, 100, 0.5, 20); // incorrect defenition of pose since 15 frame (crash on 22), but interesting to see
-    //RansacTracker tracker(model, isLogsEnabled, 1000, 0.5, 20); // incorrect defenition of pose since 15 frame. Lasts much longer
+    //CvRansacTracker tracker(model, isLogsEnabled, 10, 0.5, 1); // crash occurs on 2 frame
+    //CvRansacTracker tracker(model, isLogsEnabled, 10, 8, 10); // crash occurs on 6 frame
+    //CvRansacTracker tracker(model, isLogsEnabled, 10, 8, 20); // crash occurs on 47 frame
+    //CvRansacTracker tracker(model, isLogsEnabled, 100, 8, 20); // works without crashes as long as there will be no points (119 frame)
+    //CvRansacTracker tracker(model, isLogsEnabled, 100, 8, 5); // incorrect defenition of pose since 32 frame, but interesting to see
+    //CvRansacTracker tracker(model, isLogsEnabled, 100, 0.5, 20); // incorrect defenition of pose since 15 frame (crash on 22), but interesting to see
+    //CvRansacTracker tracker(model, isLogsEnabled, 1000, 0.5, 20); // incorrect defenition of pose since 15 frame. Lasts much longer
 
-    //RansacTestingTracker tracker(model, isLogsEnabled, 100, 8, 20); // works without crashes.
+    CvRansacTestingTracker tracker(model, isLogsEnabled, 100, 8, 20); // works without crashes.
 
-    //RansacTestingTracker tracker(model, isLogsEnabled, 10, 0.5, 1); // crash occurs on 2 frame
-    //RansacTestingTracker tracker(model, isLogsEnabled, 10, 8, 10); // incorrect defenition of pose since 4 frame (crash on 7)
-    //RansacTestingTracker tracker(model, isLogsEnabled, 10, 8, 20); // incorrect defenition of pose since ~70 frame
-    //RansacTestingTracker tracker(model, isLogsEnabled, 100, 8, 5); // incorrect defenition of pose since 6 frame, but interesting to see ROBUSTNESS!!!
-    //RansacTestingTracker tracker(model, isLogsEnabled, 100, 0.5, 20); // incorrect defenition of pose since 3 frame (crash on 5)
-    //RansacTestingTracker tracker(model, isLogsEnabled, 1000, 0.5, 20); // incorrect defenition of pose since 8 frame. Lasts MUCH LONGER
+    //CvRansacTestingTracker tracker(model, isLogsEnabled, 10, 0.5, 1); // crash occurs on 2 frame
+    //CvRansacTestingTracker tracker(model, isLogsEnabled, 10, 8, 10); // incorrect defenition of pose since 4 frame (crash on 7)
+    //CvRansacTestingTracker tracker(model, isLogsEnabled, 10, 8, 20); // incorrect defenition of pose since ~70 frame
+    //CvRansacTestingTracker tracker(model, isLogsEnabled, 100, 8, 5); // incorrect defenition of pose since 6 frame, but interesting to see ROBUSTNESS!!!
+    //CvRansacTestingTracker tracker(model, isLogsEnabled, 100, 0.5, 20); // incorrect defenition of pose since 3 frame (crash on 5)
+    //CvRansacTestingTracker tracker(model, isLogsEnabled, 1000, 0.5, 20); // incorrect defenition of pose since 8 frame. Lasts MUCH LONGER
     Mat movieFrame;
     int frameNumber = 0;
     Scalar blueColor = Scalar(255, 0, 0);
@@ -332,7 +333,7 @@ int main(int argn, char* argv[])
 
             Mat temp = Mat::zeros(3, 1, CV_64F);//Fake point of pattern
             model.DrawReferencePoints(movieFrame, temp, frameNumber, i);
-	        waitKey();
+	        waitKey(1);
         }
     }
 

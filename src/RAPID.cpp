@@ -13,7 +13,7 @@
 #include "RAPIDTrackerExperiment.hpp"
 #include "RAPIDTrackerExperiment_all_k_subsets.hpp"
 #include "RAPIDTrackerExperiment_rand_subsets.hpp"
-#include "RansacTracker.hpp"
+#include "CvRansacTracker.hpp"
 // VideoInfo struct
 #include "VideoInfo.hpp"
 
@@ -98,10 +98,11 @@ int main(int argn, char* argv[])
 
     //RAPIDTracker tracker(model, isLogsEnabled);
 	//RAPIDTrackerExperiment_rand_subsets tracker(model, isLogsEnabled, n, n/2);
-	RAPIDTrackerExperiment_all_k_subsets tracker(model, isLogsEnabled, 4);
+	//RAPIDTrackerExperiment_all_k_subsets tracker(model, isLogsEnabled, 4);
 
-    //RansacTracker tracker(model, isLogsEnabled, 10, 0.5, 1);
-    //RansacTracker tracker(model, isLogsEnabled, 100, 8, 20); // correct definition during the whole video (test_small_25.MOV)
+    //CvRansacTracker tracker(model, isLogsEnabled, 10, 0.5, 1);
+
+    CvRansacTracker tracker(model, isLogsEnabled, 100, 8, 20); // correct definition during the whole video (test_small_25.MOV)
 
     const std::string nextWindowName = "Next";
     const std::string currentWindowName = "Current";
@@ -131,7 +132,7 @@ int main(int argn, char* argv[])
 	        imshow(nextWindowName, workFrame);
 
             model.DrawReferencePoints(movieFrame, patternOrigin3D, cap.get(CV_CAP_PROP_POS_FRAMES), i);
-	        waitKey();
+	        waitKey(1);
 		}
 	}
 
@@ -169,6 +170,8 @@ bool EstimateInititalPose(const Mat& circlesImage,
     found = findCirclesGrid(circlesImage, boardSize, foundBoardCorners, 2);
 
     Mat view = circlesImage.clone();
+    drawChessboardCorners( view, boardSize, foundBoardCorners, found );
+    imshow("drawChessboardCorners", view);
 
     if (found)
     {
