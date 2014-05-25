@@ -26,8 +26,8 @@ protected:
 		cv::Mat& out_rvec,
 		cv::Mat& out_tvec) const;
 	virtual void  OutputRvecAndTvec(
-		const cv::Mat out_rvec,
-		const cv::Mat out_tvec,
+		const cv::Mat& out_rvec,
+		const cv::Mat& out_tvec,
 		std::ofstream& file) const;
 protected:
 	unsigned int k;

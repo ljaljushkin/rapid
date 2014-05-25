@@ -5,6 +5,7 @@
 #include <opencv2/core/core.hpp>
 
 #include "Model.hpp"
+#include "Util.hpp"
 #include "RAPIDTrackerExperiment.hpp"
 
 class RAPIDTrackerExperiment_rand_subsets : public RAPIDTrackerExperiment
@@ -22,4 +23,5 @@ protected:
 		const unsigned int n) const;
 private:
 	unsigned int count;
+	util::RandomGenerator* rng;
 };

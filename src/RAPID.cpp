@@ -97,12 +97,12 @@ int main(int argn, char* argv[])
 	int n = model.GetNumberControlPoints();
 
     //RAPIDTracker tracker(model, isLogsEnabled);
-	//RAPIDTrackerExperiment_rand_subsets tracker(model, isLogsEnabled, n, n/2);
+	RAPIDTrackerExperiment_rand_subsets tracker(model, isLogsEnabled, 4, 1000);
 	//RAPIDTrackerExperiment_all_k_subsets tracker(model, isLogsEnabled, 4);
 
     //CvRansacTracker tracker(model, isLogsEnabled, 10, 0.5, 1);
 
-    CvRansacTracker tracker(model, isLogsEnabled, 100, 8, 20); // correct definition during the whole video (test_small_25.MOV)
+    //CvRansacTracker tracker(model, isLogsEnabled, 100, 8, 20); // correct definition during the whole video (test_small_25.MOV)
 
     const std::string nextWindowName = "Next";
     const std::string currentWindowName = "Current";

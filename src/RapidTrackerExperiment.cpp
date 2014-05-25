@@ -21,7 +21,7 @@ RAPIDTrackerExperiment::RAPIDTrackerExperiment(
 RAPIDTrackerExperiment::~RAPIDTrackerExperiment()
 {}
 
-void RAPIDTrackerExperiment::OutputRvecAndTvec(const Mat rvec, const Mat tvec, std::ofstream& file) const
+void RAPIDTrackerExperiment::OutputRvecAndTvec(const Mat& rvec, const Mat& tvec, std::ofstream& file) const
 {
 	Mat delta_rvec = abs(rvec - model.rotationVector);
 	Mat delta_tvec = abs(tvec - model.translateVector);
@@ -37,6 +37,17 @@ void RAPIDTrackerExperiment::OutputRvecAndTvec(const Mat rvec, const Mat tvec, s
 	for(int i=0; i<2; i++)
 		file << delta_tvec.at<double>(i, 0) << ", ";
 	file << delta_tvec.at<double>(2, 0) << endl;
+}
+
+void printVector(std::vector<unsigned>& vector)
+{
+	std::vector<unsigned>::iterator Iter = vector.begin();
+	while (Iter != vector.end())
+	{
+		cout<<*Iter<<" ";
+		Iter++;
+	}
+	cout<<endl;
 }
 
 void RAPIDTrackerExperiment::RunSolvePnP(
@@ -62,12 +73,13 @@ void RAPIDTrackerExperiment::RunSolvePnP(
 	while(GenerateNextSubset(subset, n))
 	{
 		cout << idx++ << endl;
-		//if (idx == 1000)
-			//break;
+		if (idx == 1000)
+			break;
 		std::vector<Point3f> subModelPoints3D;
 		std::vector<Point2f> subFoundBoxPoints2D;
 
 		getSubVectors(modelPoints3D, foundBoxPoints2D, subset, subModelPoints3D, subFoundBoxPoints2D);
+		printVector(subset);
 
 		solvePnP(Mat(subModelPoints3D), Mat(subFoundBoxPoints2D), model.cameraMatrix,
 			model.distortionCoefficients, out_rvec, out_tvec, false);

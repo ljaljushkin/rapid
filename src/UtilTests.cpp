@@ -73,3 +73,31 @@ TEST(RandomGenerator, drawUniformSubset_K_of_N)
         EXPECT_GE(subset[i], 0) << "Found a negative index";
     }
 }
+
+TEST(RandomGenerator, drawUniformSubset_K_of_N_Unique)
+{
+	util::RandomGenerator rng;
+	int count = 0;
+	for(int i=0; i<100; i++)
+	{
+		std::vector<unsigned> subset1;
+		std::vector<unsigned> subset2;
+
+		const size_t n = 20;
+		const size_t k = 7;
+
+		rng.drawUniformSubset(n, k, subset1);
+		rng.drawUniformSubset(n, k, subset2);
+	
+		int number = 0;
+		for(size_t i = 0; i < subset1.size(); i++)
+		{
+			if (subset1[i] == subset2[i])
+				number++;
+		}
+
+		if (number != subset1.size() - 1)
+			count++;
+	}
+	EXPECT_EQ(100, count) << "Subset aren't unique";
+}
