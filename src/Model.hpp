@@ -57,5 +57,5 @@ protected:
 	friend class RAPIDTracker;
 	friend class RAPIDTrackerExperiment;
     friend class CvRansacTracker;
-    friend class RansacTracker;
+    friend class PseudoRansacTracker;
 };

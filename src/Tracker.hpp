@@ -24,6 +24,7 @@ public:
         isLogsEnabled = _isLogsEnabled;
     }
     double GetConvergenceMeasure(const Model& model1, const Model& model2, int normType) const;
+
 	virtual cv::Mat	ExtractEdges(const cv::Mat& image) const;
 
     virtual void GetAndDrawPointsForSolvePnP(
@@ -38,6 +39,13 @@ public:
         cv::Mat& out_tvec) const;
 
     virtual Model ProcessFrame(const cv::Mat& frame);
+
+    virtual void getSubVectors(
+		const std::vector<cv::Point3f> modelPoints3D, 
+		const std::vector<cv::Point2f> foundBoxPoints2D, 
+		const std::vector<unsigned> subset, 
+		std::vector<cv::Point3f> &out_subModelPoints3D,
+		std::vector<cv::Point2f> &out_subFoundBoxPoints2D) const;
 protected:
     bool FindPoints(cv::Point2d controlPoint,
         cv::Point2d companionPoint,

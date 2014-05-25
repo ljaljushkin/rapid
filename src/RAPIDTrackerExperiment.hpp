@@ -25,12 +25,6 @@ protected:
 		const std::vector<cv::Point3f> modelPoints3D,
 		cv::Mat& out_rvec,
 		cv::Mat& out_tvec) const;
-	virtual void getSubVectors(
-		const std::vector<cv::Point3f> modelPoints3D, 
-		const std::vector<cv::Point2f> foundBoxPoints2D, 
-		const std::vector<unsigned> subset, 
-		std::vector<cv::Point3f> &out_subModelPoints3D,
-		std::vector<cv::Point2f> &out_subFoundBoxPoints2D) const;
 	virtual void  OutputRvecAndTvec(
 		const cv::Mat out_rvec,
 		const cv::Mat out_tvec,
