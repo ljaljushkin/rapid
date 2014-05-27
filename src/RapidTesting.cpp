@@ -14,7 +14,7 @@
 #include "Model.hpp"
 // Algorithm wrapper
 #include "RAPIDTracker.hpp"
-#include "RansacTracker.hpp"
+#include "PseudoRansacTracker.hpp"
 #include "CvRansacTracker.hpp"
 #include "RAPIDTrackerExperiment_all_k_subsets.hpp"
 #include "RAPIDTrackerExperiment_rand_subsets.hpp"

@@ -14,6 +14,7 @@
 #include "RAPIDTrackerExperiment_all_k_subsets.hpp"
 #include "RAPIDTrackerExperiment_rand_subsets.hpp"
 #include "CvRansacTracker.hpp"
+#include "PseudoRansacTracker.hpp"
 // VideoInfo struct
 #include "VideoInfo.hpp"
 
@@ -97,12 +98,13 @@ int main(int argn, char* argv[])
 	int n = model.GetNumberControlPoints();
 
     //RAPIDTracker tracker(model, isLogsEnabled);
-	RAPIDTrackerExperiment_rand_subsets tracker(model, isLogsEnabled, 4, 1000);
+	//RAPIDTrackerExperiment_rand_subsets tracker(model, isLogsEnabled, 4, 1000);
 	//RAPIDTrackerExperiment_all_k_subsets tracker(model, isLogsEnabled, 4);
 
     //CvRansacTracker tracker(model, isLogsEnabled, 10, 0.5, 1);
 
     //CvRansacTracker tracker(model, isLogsEnabled, 100, 8, 20); // correct definition during the whole video (test_small_25.MOV)
+    PseudoRansacTracker tracker(model, isLogsEnabled, cv::Point3f(1,1,1), 5, 0.01, 5);
 
     const std::string nextWindowName = "Next";
     const std::string currentWindowName = "Current";

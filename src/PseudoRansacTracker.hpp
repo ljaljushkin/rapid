@@ -1,41 +1,37 @@
 #pragma once
 
 #include "Tracker.hpp"
-
-//void LineDistanceFunctor(const std::vector<DataType> &allData,
-//                         const std::vector<ModelParametersType> &testModels,
-//                         const double distanceThreshold,
-//                         unsigned &out_bestModelIndex,
-//                         std::vector<unsigned> &out_inlierIndices)
-//{
-//    //meanshift to find center_window
-//        // int meanShift(InputArray probImage, Rect& window, TermCriteria criteria)
-//        // probImage - testModels[i].rvec, testModels[i].tvec
-//        // window - enter from cmd or xml. rotate_epsilon and translate_epsilon
-//        // criteria - maxIter, AnotherEpsilon - EndCriteria
-//    // to see how many (points)inliers in that window (inl_r + inl_t)??
-//    // out_bestModelIndex - center of found window.
-//}
+#include "MeanShift3D.hpp"
 
 //Default settings
 #define Max_Iter 2000
 #define DistanceThreshold 0.01
+
+//sp - SolvePnP
+//ms - MeanShift
 
 class PseudoRansacTracker : public Tracker
 {
 public:
     PseudoRansacTracker(
         Model model,
-        bool isLogsEnabled,
-        double distanceThreshold = DistanceThreshold,
-        size_t maxIter = Max_Iter);
+        const bool isLogsEnabled,
+        const cv::Point3f ms_windowSizes,
+        const size_t ms_maxIter = Max_Iter,
+        const double ms_distanceThreshold = DistanceThreshold,
+        const size_t sp_iter = Max_Iter
+        );
 
     virtual void RunSolvePnP(
         const std::vector<cv::Point2f> foundBoxPoints2D,
         const std::vector<cv::Point3f> modelPoints3D,
         cv::Mat& out_rvec,
         cv::Mat& out_tvec) const;
+
+    /*virtual void MyMeanShift3D(
+        const std::list<cv::Mat>* setPoints, 
+        cv::Mat& foundCenter) const;*/
 private:
-    double distanceThreshold;
-    size_t maxIter;
+    size_t iter;
+    MeanShift3D* meanShift3D;
 };
