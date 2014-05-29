@@ -65,10 +65,11 @@ target_link_libraries(gtest ${CMAKE_THREAD_LIBS_INIT})
 ################################
 # Tests
 ################################
-set( TEST_HEADERS Util.hpp LineFitting.hpp )
+set( TEST_HEADERS Util.hpp LineFitting.hpp)
 add_executable(
 	runUnitTests
     UtilTests.cpp
+    MeanShiftTests.cpp
     LineFittingTests.cpp
 	${TEST_HEADERS}
 )

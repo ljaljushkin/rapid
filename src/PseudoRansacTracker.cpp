@@ -15,12 +15,12 @@ PseudoRansacTracker::PseudoRansacTracker(
     const bool _isLogsEnabled,
     const Point3f _ms_windowSizes,
     const size_t _ms_maxIter,
-    const double _ms_distanceThreshold,
+    const double _ms_eps,
     const size_t _iter)
     :   Tracker(model, isLogsEnabled),
         iter(_iter)
 { 
-    meanShift3D = new MeanShift3D(_ms_maxIter, _ms_distanceThreshold, _ms_windowSizes);
+    meanShift3D = new MeanShift3D(_ms_maxIter, _ms_eps, _ms_windowSizes);
 }
 
 //#define finalEps 0.01

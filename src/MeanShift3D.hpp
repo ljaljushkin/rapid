@@ -9,7 +9,7 @@ class MeanShift3D
 public:
     MeanShift3D(
         const size_t MaxIter,
-        const double distanceThreshold,
+        const double eps,
         const cv::Point3f windowSizes,
         const bool isIterCriteria = true);
 
@@ -19,7 +19,8 @@ public:
 
 private:
     size_t maxIter;
-    double  distanceThreshold;
+    double  eps;
     cv::Point3f windowSizes;
     bool isIterCriteria;
+    std::vector<cv::Mat> deltaBoundaries;
 };

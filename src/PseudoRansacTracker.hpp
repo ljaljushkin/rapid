@@ -18,7 +18,7 @@ public:
         const bool isLogsEnabled,
         const cv::Point3f ms_windowSizes,
         const size_t ms_maxIter = Max_Iter,
-        const double ms_distanceThreshold = DistanceThreshold,
+        const double ms_eps = DistanceThreshold,
         const size_t sp_iter = Max_Iter
         );
 
