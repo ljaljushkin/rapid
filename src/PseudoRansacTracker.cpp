@@ -13,14 +13,17 @@ using namespace cv;
 PseudoRansacTracker::PseudoRansacTracker(
     Model model,
     const bool _isLogsEnabled,
-    const Point3f _ms_windowSizes,
-    const size_t _ms_maxIter,
-    const double _ms_eps,
-    const size_t _iter)
-    :   Tracker(model, isLogsEnabled),
+    const Point3f _ms_windowSizesR,
+    const Point3f _ms_windowSizesT,
+    const int _ms_maxIter,
+    const double _ms_epsR,
+    const double _ms_epsT,
+    const int _iter)
+    :   Tracker(model, _isLogsEnabled),
         iter(_iter)
 { 
-    meanShift3D = new MeanShift3D(_ms_maxIter, _ms_eps, _ms_windowSizes);
+    meanShift3DRotate = new MeanShift3D(_ms_maxIter, _ms_epsR, _ms_windowSizesR);
+    meanShift3DTranslate = new MeanShift3D(_ms_maxIter, _ms_epsT, _ms_windowSizesT);
 }
 
 void PseudoRansacTracker::RunSolvePnP(
@@ -67,7 +70,10 @@ void PseudoRansacTracker::RunSolvePnP(
         }
     }
 
-    meanShift3D->execute(&rvecPool, out_rvec);
-    meanShift3D->execute(&tvecPool, out_tvec);
+    meanShift3DRotate->execute(&rvecPool, out_rvec);
+    meanShift3DTranslate->execute(&tvecPool, out_tvec);
 
+
+    out_rvec += model.rotationVector;
+    out_tvec += model.translateVector;
 }

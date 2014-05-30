@@ -23,12 +23,22 @@ void FillData_Four2DPoints(std::list<cv::Point3f>& setOfPoints)
     setOfPoints.push_back(cv::Point3f(0,0,0));
 }
 
-void FillData_Points(std::list<cv::Point3f>& setOfPoints)
+void FillData_NumerousPointsOnPlane(std::list<cv::Point3f>& setOfPoints)
 {
-    setOfPoints.push_back(cv::Point3f(2,0,0));
-    setOfPoints.push_back(cv::Point3f(0,2,0));
-    setOfPoints.push_back(cv::Point3f(2,2,0));
-    setOfPoints.push_back(cv::Point3f(0,0,0));
+    setOfPoints.push_back(cv::Point3f(0, 0, 0));
+    setOfPoints.push_back(cv::Point3f(2, 2, 0));
+    setOfPoints.push_back(cv::Point3f(2, 3, 0));
+    setOfPoints.push_back(cv::Point3f(2, 4, 0));
+    setOfPoints.push_back(cv::Point3f(3, 2, 0));
+    setOfPoints.push_back(cv::Point3f(3, 3, 0));
+    setOfPoints.push_back(cv::Point3f(3, 4, 0));
+    setOfPoints.push_back(cv::Point3f(4, 4, 0));
+    setOfPoints.push_back(cv::Point3f(4, 3, 0));
+
+    setOfPoints.push_back(cv::Point3f(2.5, 2.5, 0));
+    setOfPoints.push_back(cv::Point3f(2.5, 4, 0));
+    setOfPoints.push_back(cv::Point3f(3, 3.5, 0));
+    setOfPoints.push_back(cv::Point3f(3.5, 4, 0));
 }
 
 class MeanShiftTest : public ::testing::Test
@@ -36,7 +46,7 @@ class MeanShiftTest : public ::testing::Test
 protected:
    void SetUp()
    {
-       meanShift = new MeanShift3D(100, 0.01, cv::Point3f(4,4,0));
+       meanShift = new MeanShift3D(100, 0, cv::Point3f(4,4,0));
    }
 protected:
    std::list<cv::Point3f> setOfPoints;
@@ -46,13 +56,13 @@ protected:
 TEST_F(MeanShiftTest, Two2DPoints)
 {
     FillData_Two2DPoints(setOfPoints);
-    cv::Mat center(1, 3, CV_32F);
+    cv::Mat center;
 
     meanShift->execute(&setOfPoints, center);
 
     EXPECT_EQ(1, center.at<float>(0,0)) << incorrectX;
-    EXPECT_EQ(0, center.at<float>(0,1)) << incorrectY;
-    EXPECT_EQ(0, center.at<float>(0,2)) << incorrectZ;
+    EXPECT_EQ(0, center.at<float>(1,0)) << incorrectY;
+    EXPECT_EQ(0, center.at<float>(2,0)) << incorrectZ;
 }
 
 TEST_F(MeanShiftTest, Four2DPoints)
@@ -63,6 +73,18 @@ TEST_F(MeanShiftTest, Four2DPoints)
     meanShift->execute(&setOfPoints, center);
 
     EXPECT_EQ(1, center.at<float>(0,0)) << incorrectX;
-    EXPECT_EQ(1, center.at<float>(0,1)) << incorrectY;
-    EXPECT_EQ(0, center.at<float>(0,2)) << incorrectZ;
+    EXPECT_EQ(1, center.at<float>(1,0)) << incorrectY;
+    EXPECT_EQ(0, center.at<float>(2,0)) << incorrectZ;
+}
+
+TEST_F(MeanShiftTest, NumerousPointsOnPlane)
+{
+    FillData_NumerousPointsOnPlane(setOfPoints);
+    cv::Mat center(1, 3, CV_32F);
+
+    meanShift->execute(&setOfPoints, center);
+
+    EXPECT_LE(2, center.at<float>(0,0)) << incorrectX;
+    EXPECT_LE(3, center.at<float>(1,0)) << incorrectY;
+    EXPECT_EQ(0, center.at<float>(2,0)) << incorrectZ;
 }
