@@ -3,61 +3,66 @@
 
 #include "MeanShift3D.hpp"
 
-void FillData(std::list<cv::Mat>& setPoints)
+const char incorrectX [] = {"center x isn't correct"};
+const char incorrectY [] = {"center y isn't correct"};
+const char incorrectZ [] = {"center z isn't correct"};
+
+void FillData_Two2DPoints(std::list<cv::Point3f>& setOfPoints)
 {
-    std::vector<cv::Point3f> vec;
-    vec.push_back(cv::Point3f(2,0,0));
-    cv::Mat mat = (cv::Mat)vec;
-
-    std::vector<cv::Point3f> vec2;
-    vec2.push_back(cv::Point3f(0,0,0));
-    cv::Mat mat2 = (cv::Mat)vec2;
-
-    std::cout<<"mat_only"<<mat2<<std::endl;
-
-    /*setPoints->push_back(cv::Mat(1,1,0));
-    setPoints->push_back(cv::Mat(2,2,0));
-    setPoints->push_back(cv::Mat(0,2,0));*/
-
-    //setPoints = new std::list<cv::Mat>;
-
-    setPoints.push_back(mat.clone());
-    setPoints.push_back(mat2.clone());
-
-    std::list<cv::Mat>::iterator setPointsIter = setPoints.begin();
-    std::cout<<"end fill"<<*setPointsIter<<std::endl;
+    setOfPoints.push_back(cv::Point3f(2,0,0));
+    setOfPoints.push_back(cv::Point3f(0,0,0));
+    /*std::list<cv::Point3f>::iterator setOfPointsIter = setOfPoints.begin();
+    std::cout<<"end fill"<<*setOfPointsIter<<std::endl;*/
 }
 
+void FillData_Four2DPoints(std::list<cv::Point3f>& setOfPoints)
+{
+    setOfPoints.push_back(cv::Point3f(2,0,0));
+    setOfPoints.push_back(cv::Point3f(0,2,0));
+    setOfPoints.push_back(cv::Point3f(2,2,0));
+    setOfPoints.push_back(cv::Point3f(0,0,0));
+}
+
+void FillData_Points(std::list<cv::Point3f>& setOfPoints)
+{
+    setOfPoints.push_back(cv::Point3f(2,0,0));
+    setOfPoints.push_back(cv::Point3f(0,2,0));
+    setOfPoints.push_back(cv::Point3f(2,2,0));
+    setOfPoints.push_back(cv::Point3f(0,0,0));
+}
 
 class MeanShiftTest : public ::testing::Test
 {
 protected:
    void SetUp()
    {
-       //setPoints = new std::list<cv::Mat>();
-       FillData(setPoints);
-       std::list<cv::Mat>::iterator setPointsIter = setPoints.begin(); 
-       std::cout<<"after fill: "<<*setPointsIter<<std::endl;
-       setPointsIter++;
-       std::cout<<*setPointsIter<<std::endl;
-
        meanShift = new MeanShift3D(100, 0.01, cv::Point3f(4,4,0));
    }
 protected:
-   std::list<cv::Mat> setPoints;
+   std::list<cv::Point3f> setOfPoints;
    MeanShift3D* meanShift;
 };
 
 TEST_F(MeanShiftTest, Two2DPoints)
 {
-    cv::Mat center;
+    FillData_Two2DPoints(setOfPoints);
+    cv::Mat center(1, 3, CV_32F);
 
-    std::list<cv::Mat>::const_iterator setPointsIter = setPoints.begin();
-    std::cout<<*setPointsIter<<std::endl;
+    meanShift->execute(&setOfPoints, center);
 
-    meanShift->execute(&setPoints, center);
+    EXPECT_EQ(1, center.at<float>(0,0)) << incorrectX;
+    EXPECT_EQ(0, center.at<float>(0,1)) << incorrectY;
+    EXPECT_EQ(0, center.at<float>(0,2)) << incorrectZ;
+}
 
-    EXPECT_EQ(1, center.at<float>(0,0)) << "center x isn't correct";
-    EXPECT_EQ(0, center.at<float>(0,1)) << "center y isn't correct";
-    EXPECT_EQ(0, center.at<float>(0,2)) << "center z isn't correct";
+TEST_F(MeanShiftTest, Four2DPoints)
+{
+    FillData_Four2DPoints(setOfPoints);
+    cv::Mat center(1, 3, CV_32F);
+
+    meanShift->execute(&setOfPoints, center);
+
+    EXPECT_EQ(1, center.at<float>(0,0)) << incorrectX;
+    EXPECT_EQ(1, center.at<float>(0,1)) << incorrectY;
+    EXPECT_EQ(0, center.at<float>(0,2)) << incorrectZ;
 }

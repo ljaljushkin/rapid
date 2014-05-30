@@ -1,0 +1,213 @@
+From 66f1348293cf97e5cca96305af8c15ab2e320717 Mon Sep 17 00:00:00 2001
+From: Nikolaj <ljaljushkin.nikolaj@gmail.com>
+Date: Sun, 25 May 2014 19:34:33 +0400
+Subject: [PATCH] Corrected experiments
+
+---
+ others/matlab_workspace/read_draw.m         |  8 ++++++++
+ src/RAPID.cpp                               |  4 ++--
+ src/RAPIDTrackerExperiment.hpp              |  4 ++--
+ src/RAPIDTrackerExperiment_rand_subsets.cpp |  9 ++++++---
+ src/RAPIDTrackerExperiment_rand_subsets.hpp |  2 ++
+ src/RapidTrackerExperiment.cpp              | 18 +++++++++++++++---
+ src/UtilTests.cpp                           | 28 ++++++++++++++++++++++++++++
+ 7 files changed, 63 insertions(+), 10 deletions(-)
+
+diff --git a/others/matlab_workspace/read_draw.m b/others/matlab_workspace/read_draw.m
+index f8713f1..9c6bd12 100644
+--- a/others/matlab_workspace/read_draw.m
++++ b/others/matlab_workspace/read_draw.m
+@@ -8,14 +8,22 @@ tx = arr( : , 4 );
+ ty = arr( : , 5 );
+ tz = arr( : , 6 );
+ 
++a = 0;
++b = 50;
++
+ figure('name','Delta rotation vectors')
+ scatter3(rx,ry,rz,...
+         'MarkerEdgeColor','k',...
+         'MarkerFaceColor',[.75 .75 0])
++axis([a,b,a,b,a,b])
+ view(-30,10)
+ 
++
+ figure('name','Delta translation vectors')
+ scatter3(tx,ty,tz,...
+         'MarkerEdgeColor','k',...
+         'MarkerFaceColor',[0 .75 .75])
++a = 0;
++b = 200;
++axis([a,b,a,b,a,b])
+ view(-30,10)
+\ No newline at end of file
+diff --git a/src/RAPID.cpp b/src/RAPID.cpp
+index 3363a8f..86ca891 100644
+--- a/src/RAPID.cpp
++++ b/src/RAPID.cpp
+@@ -97,8 +97,8 @@ int main(int argn, char* argv[])
+ 	int n = model.GetNumberControlPoints();
+ 
+     //RAPIDTracker tracker(model, isLogsEnabled);
+-	//RAPIDTrackerExperiment_rand_subsets tracker(model, isLogsEnabled, n, n/2);
+-	RAPIDTrackerExperiment_all_k_subsets tracker(model, isLogsEnabled, 4);
++	RAPIDTrackerExperiment_rand_subsets tracker(model, isLogsEnabled, 4, 1000);
++	//RAPIDTrackerExperiment_all_k_subsets tracker(model, isLogsEnabled, 4);
+ 
+     //RansacTracker tracker(model, isLogsEnabled, 10, 0.5, 1);
+     //RansacTracker tracker(model, isLogsEnabled, 100, 8, 20); // correct definition during the whole video (test_small_25.MOV)
+diff --git a/src/RAPIDTrackerExperiment.hpp b/src/RAPIDTrackerExperiment.hpp
+index 84e673b..9ebc04a 100644
+--- a/src/RAPIDTrackerExperiment.hpp
++++ b/src/RAPIDTrackerExperiment.hpp
+@@ -32,8 +32,8 @@ protected:
+ 		std::vector<cv::Point3f> &out_subModelPoints3D,
+ 		std::vector<cv::Point2f> &out_subFoundBoxPoints2D) const;
+ 	virtual void  OutputRvecAndTvec(
+-		const cv::Mat out_rvec,
+-		const cv::Mat out_tvec,
++		const cv::Mat& out_rvec,
++		const cv::Mat& out_tvec,
+ 		std::ofstream& file) const;
+ protected:
+ 	unsigned int k;
+diff --git a/src/RAPIDTrackerExperiment_rand_subsets.cpp b/src/RAPIDTrackerExperiment_rand_subsets.cpp
+index c4259a9..7c632b9 100644
+--- a/src/RAPIDTrackerExperiment_rand_subsets.cpp
++++ b/src/RAPIDTrackerExperiment_rand_subsets.cpp
+@@ -1,6 +1,7 @@
+ #include <cmath>
+ #include <iostream>
+ #include <fstream>
++#include <time.h>
+ 
+ #include <opencv2/calib3d/calib3d.hpp>
+ 
+@@ -19,7 +20,9 @@ RAPIDTrackerExperiment_rand_subsets::RAPIDTrackerExperiment_rand_subsets(
+ 	unsigned int _k,
+ 	unsigned int _count)
+ 	:	RAPIDTrackerExperiment(_model, _isLogsEnabled, _k), count(_count)
+-{}
++{
++	rng = new util::RandomGenerator(time(NULL));
++}
+ 
+ RAPIDTrackerExperiment_rand_subsets::~RAPIDTrackerExperiment_rand_subsets()
+ {}
+@@ -28,8 +31,8 @@ bool RAPIDTrackerExperiment_rand_subsets::GenerateNextSubset(
+ 	std::vector<unsigned>& out_subset, 
+ 	const unsigned int n) const
+ {
+-	util::RandomGenerator rng;
+-	rng.drawUniformSubset(n, k, out_subset);
++	
++	(*rng).drawUniformSubset(n, k, out_subset);
+ 
+ 	currCount++;
+ 	if (currCount == count) 
+diff --git a/src/RAPIDTrackerExperiment_rand_subsets.hpp b/src/RAPIDTrackerExperiment_rand_subsets.hpp
+index 014c16d..b88a951 100644
+--- a/src/RAPIDTrackerExperiment_rand_subsets.hpp
++++ b/src/RAPIDTrackerExperiment_rand_subsets.hpp
+@@ -5,6 +5,7 @@
+ #include <opencv2/core/core.hpp>
+ 
+ #include "Model.hpp"
++#include "Util.hpp"
+ #include "RAPIDTrackerExperiment.hpp"
+ 
+ class RAPIDTrackerExperiment_rand_subsets : public RAPIDTrackerExperiment
+@@ -22,4 +23,5 @@ protected:
+ 		const unsigned int n) const;
+ private:
+ 	unsigned int count;
++	util::RandomGenerator* rng;
+ };
+diff --git a/src/RapidTrackerExperiment.cpp b/src/RapidTrackerExperiment.cpp
+index f8ad5f2..505b347 100644
+--- a/src/RapidTrackerExperiment.cpp
++++ b/src/RapidTrackerExperiment.cpp
+@@ -35,7 +35,7 @@ void RAPIDTrackerExperiment::getSubVectors(
+ 	}
+ }
+ 
+-void RAPIDTrackerExperiment::OutputRvecAndTvec(const Mat rvec, const Mat tvec, std::ofstream& file) const
++void RAPIDTrackerExperiment::OutputRvecAndTvec(const Mat& rvec, const Mat& tvec, std::ofstream& file) const
+ {
+ 	Mat delta_rvec = abs(rvec - model.rotationVector);
+ 	Mat delta_tvec = abs(tvec - model.translateVector);
+@@ -53,6 +53,17 @@ void RAPIDTrackerExperiment::OutputRvecAndTvec(const Mat rvec, const Mat tvec, s
+ 	file << delta_tvec.at<double>(2, 0) << endl;
+ }
+ 
++void printVector(std::vector<unsigned>& vector)
++{
++	std::vector<unsigned>::iterator Iter = vector.begin();
++	while (Iter != vector.end())
++	{
++		cout<<*Iter<<" ";
++		Iter++;
++	}
++	cout<<endl;
++}
++
+ void RAPIDTrackerExperiment::RunSolvePnP(
+ 	const std::vector<Point2f> foundBoxPoints2D,
+     const std::vector<Point3f> modelPoints3D,
+@@ -76,12 +87,13 @@ void RAPIDTrackerExperiment::RunSolvePnP(
+ 	while(GenerateNextSubset(subset, n))
+ 	{
+ 		cout << idx++ << endl;
+-		//if (idx == 1000)
+-			//break;
++		if (idx == 1000)
++			break;
+ 		std::vector<Point3f> subModelPoints3D;
+ 		std::vector<Point2f> subFoundBoxPoints2D;
+ 
+ 		getSubVectors(modelPoints3D, foundBoxPoints2D, subset, subModelPoints3D, subFoundBoxPoints2D);
++		printVector(subset);
+ 
+ 		solvePnP(Mat(subModelPoints3D), Mat(subFoundBoxPoints2D), model.cameraMatrix,
+ 			model.distortionCoefficients, out_rvec, out_tvec, false);
+diff --git a/src/UtilTests.cpp b/src/UtilTests.cpp
+index 0574dfa..621b329 100755
+--- a/src/UtilTests.cpp
++++ b/src/UtilTests.cpp
+@@ -72,4 +72,32 @@ TEST(RandomGenerator, drawUniformSubset_K_of_N)
+         EXPECT_LE(subset[i], n) << "Found an index too large";
+         EXPECT_GE(subset[i], 0) << "Found a negative index";
+     }
++}
++
++TEST(RandomGenerator, drawUniformSubset_K_of_N_Unique)
++{
++	util::RandomGenerator rng;
++	int count = 0;
++	for(int i=0; i<100; i++)
++	{
++		std::vector<unsigned> subset1;
++		std::vector<unsigned> subset2;
++
++		const size_t n = 20;
++		const size_t k = 7;
++
++		rng.drawUniformSubset(n, k, subset1);
++		rng.drawUniformSubset(n, k, subset2);
++	
++		int number = 0;
++		for(size_t i = 0; i < subset1.size(); i++)
++		{
++			if (subset1[i] == subset2[i])
++				number++;
++		}
++
++		if (number != subset1.size() - 1)
++			count++;
++	}
++	EXPECT_EQ(100, count) << "Subset aren't unique";
+ }
+\ No newline at end of file
+-- 
+1.8.1.msysgit.1
+

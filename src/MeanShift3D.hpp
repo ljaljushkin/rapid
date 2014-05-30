@@ -14,7 +14,7 @@ public:
         const bool isIterCriteria = true);
 
     void execute(
-        const std::list<cv::Mat>* setPoints, 
+        const std::list<cv::Point3f>* setPoints, 
         cv::Mat& foundCenter) const;
 
 private:
@@ -22,5 +22,4 @@ private:
     double  eps;
     cv::Point3f windowSizes;
     bool isIterCriteria;
-    std::vector<cv::Mat> deltaBoundaries;
 };

@@ -16,94 +16,63 @@ MeanShift3D::MeanShift3D(
         eps(_eps),
         windowSizes(_windowSizes),
         isIterCriteria(_isIterCriteria)
-{
-    
-    /*deltaBoundaries.push_back(Mat( _windowSizes.x/2,  _windowSizes.y/2,  _windowSizes.z/2));
-    deltaBoundaries.push_back(Mat(-_windowSizes.x/2,  _windowSizes.y/2,  _windowSizes.z/2));
-    deltaBoundaries.push_back(Mat( _windowSizes.x/2, -_windowSizes.y/2,  _windowSizes.z/2));
-    deltaBoundaries.push_back(Mat(-_windowSizes.x/2, -_windowSizes.y/2,  _windowSizes.z/2));
-
-    deltaBoundaries.push_back(Mat( _windowSizes.x/2,  _windowSizes.y/2, -_windowSizes.z/2));
-    deltaBoundaries.push_back(Mat(-_windowSizes.x/2,  _windowSizes.y/2, -_windowSizes.z/2));
-    deltaBoundaries.push_back(Mat( _windowSizes.x/2, -_windowSizes.y/2, -_windowSizes.z/2));
-    deltaBoundaries.push_back(Mat(-_windowSizes.x/2, -_windowSizes.y/2, -_windowSizes.z/2));*/
-}
+{}
 
 void MeanShift3D::execute(
-    const std::list<cv::Mat>* setPoints,
+    const std::list<cv::Point3f>* setOfPoints,
     cv::Mat& foundCenter) const
 {
-    double dx = windowSizes.x/2;
-    double dy = windowSizes.y/2;
-    double dz = windowSizes.z/2;
+    float dx = windowSizes.x/2;
+    float dy = windowSizes.y/2;
+    float dz = windowSizes.z/2;
 
-    std::list<Mat>::const_iterator setPointsIter = setPoints->begin();
-    cout<<*setPointsIter<<std::endl;
+    std::list<Point3f>::const_iterator setOfPointsIter = setOfPoints->begin();
+    /*cout<<*setOfPointsIter<<std::endl;*/
 
-    foundCenter = setPointsIter->clone(); // first point is the first center
-    cout<<"first!"<<foundCenter<<std::endl;
+    Point3f center(*setOfPointsIter);
+    cout<<"first_center: "<<center<<std::endl;
 
-    bool isConverged = false;
-    int count = 0;
+    int countInside = 0, numIter = 0;
 
-    double sumX = 0;
-    double sumY = 0;
-    double sumZ = 0;
-
-    float cx = foundCenter.at<float>(0, 0);
-    float cy = foundCenter.at<float>(0, 1);
-    float cz = foundCenter.at<float>(0, 2);
-
-    int coundInside = 0;
-
-    while((count != maxIter) && (!isConverged))
+    while(numIter != maxIter)
     {
-        setPointsIter = setPoints->begin();
-        while(setPointsIter != setPoints->end())
+        setOfPointsIter = setOfPoints->begin();
+        countInside = 0;
+        Point3f sum(0,0,0);
+
+        while(setOfPointsIter != setOfPoints->end())
         {
-            float x = setPointsIter->at<float>(0,0);
-            float y = setPointsIter->at<float>(0,1);
-            float z = setPointsIter->at<float>(0,2);
-
-            if( (x >= cx - dx) && (x <= cx + dx) && 
-                (y >= cy - dy) && (y <= cy + dy) &&
-                (z >= cz - dz) && (z <= cz + dz) )
+            if( (setOfPointsIter->x >= center.x - dx) && (setOfPointsIter->x <= center.x + dx) &&
+                (setOfPointsIter->y >= center.y - dy) && (setOfPointsIter->y <= center.y + dy) &&
+                (setOfPointsIter->z >= center.z - dz) && (setOfPointsIter->z <= center.z + dz) )
             {
-                sumX += x;
-                sumY += y;
-                sumZ += z;
-                coundInside++;
+                sum += *setOfPointsIter;
+                countInside++;
             }
-            
-            /*cout<<*setPointsIter<<endl;
-            cout<<" x_d: "<<setPointsIter->at<double>(0,0)<<endl; 
-            cout<<" y_d: "<<setPointsIter->at<double>(1,0)<<endl; 
-            cout<<" z_d: "<<setPointsIter->at<double>(2,0)<<endl; */
-            //cout<<" x_d: "<<setPointsIter->at<double>(0,0)<<endl;
-
-            setPointsIter++;
+            setOfPointsIter++;
         }
 
-        double nx = sumX/coundInside;
-        double ny = sumY/coundInside;
-        double nz = sumZ/coundInside;
+        float nx = sum.x/countInside;
+        float ny = sum.y/countInside;
+        float nz = sum.z/countInside;
 
-        if( (nx - cx)*(nx - cx) + (ny - cy)*(ny - cy) + (nz - cz)*(nz - cz) > eps*eps*eps)
+        if( (nx - center.x)*(nx - center.x) + (ny - center.y)*(ny - center.y) + (nz - center.z)*(nz - center.z) > eps*eps)
         {
-            cx = nx;
-            cy = ny;
-            cz = nz;
+            center.x = nx;
+            center.y = ny;
+            center.z = nz;
+            cout<<"new_center: "<<center<<std::endl;
         }
         else
         {
-            isConverged = true;
             break;
         }
 
-        count++;
+        numIter++;
     }
 
-    foundCenter.at<float>(0, 0) = cx;
-    foundCenter.at<float>(0, 1) = cy;
-    foundCenter.at<float>(0, 2) = cz;
+    foundCenter.at<float>(0, 0) = center.x;
+    foundCenter.at<float>(0, 1) = center.y;
+    foundCenter.at<float>(0, 2) = center.z;
+    cout<<"found_center: "<<foundCenter<<std::endl;
 }
