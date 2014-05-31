@@ -23,8 +23,8 @@ RAPIDTrackerExperiment::~RAPIDTrackerExperiment()
 
 void RAPIDTrackerExperiment::OutputRvecAndTvec(const Mat& rvec, const Mat& tvec, std::ofstream& file) const
 {
-	Mat delta_rvec = abs(rvec - model.rotationVector);
-	Mat delta_tvec = abs(tvec - model.translateVector);
+	Mat delta_rvec = rvec - model.rotationVector;
+	Mat delta_tvec = tvec - model.translateVector;
 	if (isLogsEnabled)
 	{
 		//cout << "---(SolvePnP) rotate vector" << endl << rvec << endl << "---(SolvePnP) translate vector=" << endl << tvec << endl;
@@ -56,8 +56,9 @@ void RAPIDTrackerExperiment::RunSolvePnP(
 	Mat& out_rvec,
 	Mat& out_tvec) const
 {
-	std::ofstream file;
+	std::ofstream file, file_r;
 	file.open ("../others/matlab_workspace/rvec_and_tvec.txt");
+	file_r.open ("../others/matlab_workspace/ransac_rvec_and_tvec.txt");
 	//file.open ("../others/matlab_workspace/rvec_and_tvec.txt", std::ios::app);
 
 	std::vector<unsigned> subset(k);
@@ -86,9 +87,16 @@ void RAPIDTrackerExperiment::RunSolvePnP(
 
 		OutputRvecAndTvec(out_rvec, out_tvec, file);
 	}
+	Mat out_rvec_r, out_tvec_r;
+	solvePnPRansac(Mat(modelPoints3D), Mat(foundBoxPoints2D), model.cameraMatrix,
+		model.distortionCoefficients, out_rvec_r, out_tvec_r, false,
+		10, 0.5, 1);
+
+	OutputRvecAndTvec(out_rvec_r, out_tvec_r, file_r);
 
 	solvePnP(Mat(modelPoints3D), Mat(foundBoxPoints2D), model.cameraMatrix,
 		model.distortionCoefficients, out_rvec, out_tvec, false);
 
 	file.close();
+	file_r.close();
 }

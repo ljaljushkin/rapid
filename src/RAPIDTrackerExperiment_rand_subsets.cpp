@@ -32,7 +32,7 @@ bool RAPIDTrackerExperiment_rand_subsets::GenerateNextSubset(
 	const unsigned int n) const
 {
 	
-	(*rng).drawUniformSubset(n, k, out_subset);
+	(*rng).drawUniformSubset(n-1, k, out_subset);
 
 	currCount++;
 	if (currCount == count) 

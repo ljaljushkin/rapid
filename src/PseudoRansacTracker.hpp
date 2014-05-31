@@ -29,6 +29,11 @@ public:
         const std::vector<cv::Point3f> modelPoints3D,
         cv::Mat& out_rvec,
         cv::Mat& out_tvec) const;  
+
+	virtual void  OutputRvecAndTvec(
+		const cv::Mat& out_rvec,
+		const cv::Mat& out_tvec,
+		std::ofstream& file) const;
 private:
     int iter;
     MeanShift3D* meanShift3DRotate;
