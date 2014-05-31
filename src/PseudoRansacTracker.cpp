@@ -59,9 +59,6 @@ void PseudoRansacTracker::RunSolvePnP(
     std::list<Point3f> rvecPool;
     std::list<Point3f> tvecPool;
 
-    std::vector<Point3f> subModelPoints3D;
-    std::vector<Point2f> subFoundBoxPoints2D;
-
     const unsigned int n = model.controlPoints.size();
     std::vector<unsigned> subset(4);
 
@@ -70,6 +67,9 @@ void PseudoRansacTracker::RunSolvePnP(
     Mat rvec, tvec;
     for(int i=0; i < iter; i++)
     {
+		std::vector<Point3f> subModelPoints3D;
+		std::vector<Point2f> subFoundBoxPoints2D;
+
 	    rng.drawUniformSubset(n-1, 4, subset);
 
 	    getSubVectors(modelPoints3D, foundBoxPoints2D, subset, subModelPoints3D, subFoundBoxPoints2D);
@@ -96,17 +96,27 @@ void PseudoRansacTracker::RunSolvePnP(
         }
     }
 
+	/*solvePnPRansac(Mat(modelPoints3D), Mat(foundBoxPoints2D), model.cameraMatrix,
+		model.distortionCoefficients, out_rvec, out_tvec, false,
+		100, 8, 20);
+	OutputRvecAndTvec(out_rvec, out_tvec, file_r);*/
+
 	Mat out_rvec_m, out_tvec_m;
-    meanShift3DRotate->execute(&rvecPool, out_rvec_m);
-    meanShift3DTranslate->execute(&tvecPool, out_tvec_m);
+	meanShift3DRotate->execute(&rvecPool, out_rvec_m);
+	meanShift3DTranslate->execute(&tvecPool, out_tvec_m);
+	//out_rvec = out_rvec_m + model.rotationVector;
+	//out_tvec = out_tvec_m + model.translateVector;
+	//OutputRvecAndTvec(out_rvec, out_tvec, file_m);
 	out_rvec_m += model.rotationVector;
 	out_tvec_m += model.translateVector;
 	OutputRvecAndTvec(out_rvec_m, out_tvec_m, file_m);
-
 	
 	solvePnPRansac(Mat(modelPoints3D), Mat(foundBoxPoints2D), model.cameraMatrix,
-		model.distortionCoefficients, out_rvec, out_tvec, false,
-		10, 0.5, 1);
+	model.distortionCoefficients, out_rvec, out_tvec, false,
+		100, 8, 20);
 	OutputRvecAndTvec(out_rvec, out_tvec, file_r);
 
+	cout<<"^^^^^^ Rotate error: "<<endl<<abs(out_rvec_m - out_rvec)<<endl;
+	cout<<"^^^^^^ Translate error: "<<endl<<abs(out_tvec_m - out_tvec)<<endl;
 }
+

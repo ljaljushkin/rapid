@@ -77,7 +77,7 @@ void MeanShift3D::execute(
     }
 
     foundCenter = Mat::zeros(3, 1, CV_64F);
-    cout<<"iterCount: "<<numIter<<std::endl;
+    //cout<<"iterCount: "<<numIter<<std::endl;
     foundCenter.at<double>(0, 0) = center.x;
     foundCenter.at<double>(1, 0) = center.y;
     foundCenter.at<double>(2, 0) = center.z;
