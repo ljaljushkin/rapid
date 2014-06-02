@@ -67,4 +67,14 @@ public:
 private:
 	cv::RNG rng;
 };
+
+void getSubVectors(
+	const std::vector<cv::Point3f> modelPoints3D, 
+	const std::vector<cv::Point2f> foundBoxPoints2D, 
+	const std::vector<unsigned> subset, 
+	std::vector<cv::Point3f> &out_subModelPoints3D,
+	std::vector<cv::Point2f> &out_subFoundBoxPoints2D); 
+
+void printVector(std::vector<unsigned>& vector);
+
 }

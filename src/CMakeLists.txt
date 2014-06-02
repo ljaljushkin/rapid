@@ -30,6 +30,7 @@ add_library( CORE_LIB
 	RAPIDTrackerExperiment_all_k_subsets.cpp
 	RAPIDTrackerExperiment_rand_subsets.cpp
 	VideoInfo.cpp
+	Util.cpp
 	Tracker.cpp
     PseudoRansacTracker.cpp
 	MeanShift3D.cpp

@@ -104,7 +104,7 @@ int main(int argn, char* argv[])
     //CvRansacTracker tracker(model, isLogsEnabled, 10, 0.5, 1);
 
     //CvRansacTracker tracker(model, isLogsEnabled, 100, 8, 20); // correct definition during the whole video (test_small_25.MOV)
-    PseudoRansacTracker tracker(model, isLogsEnabled, cv::Point3f(1,1,1), cv::Point3f(50,50,50), 500, 0.0001, 0.0001, 200);
+    PseudoRansacTracker tracker(model, isLogsEnabled, cv::Point3f(1,1,1), cv::Point3f(50,50,50), 500, 0.0001, 0.0001, 200, 8);
 
     const std::string nextWindowName = "Next";
     const std::string currentWindowName = "Current";
@@ -123,7 +123,7 @@ int main(int argn, char* argv[])
         {
             Mat workFrame = movieFrame.clone();
 
-			tracker.SetRansacImage(workFrame);
+			tracker.SetExtraImage(workFrame);
 
 	        Mat prev = model.Outline(workFrame);
 	        imshow(currentWindowName, prev);

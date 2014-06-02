@@ -1,6 +1,7 @@
 arr = csvread('mean_shift_rvec_and_tvec.txt');
 m_arr = csvread('center_rvec_and_tvec.txt');
 r_arr = csvread('ransac_rvec_and_tvec.txt');
+i_arr = csvread('with_inliers_rvec_and_tvec.txt');
 
 rx = arr( : , 1 ); ry = arr( : , 2 ); rz = arr( : , 3 );
 tx = arr( : , 4 ); ty = arr( : , 5 ); tz = arr( : , 6 );
@@ -10,6 +11,9 @@ t_tx = r_arr( : , 4 ); t_ty = r_arr( : , 5 ); t_tz = r_arr( : , 6 );
 
 m_rx = m_arr( : , 1 ); m_ry = m_arr( : , 2 ); m_rz = m_arr( : , 3 );
 m_tx = m_arr( : , 4 ); m_ty = m_arr( : , 5 ); m_tz = m_arr( : , 6 );
+
+i_rx = i_arr( : , 1 ); i_ry = i_arr( : , 2 ); i_rz = i_arr( : , 3 );
+i_tx = i_arr( : , 4 ); i_ty = i_arr( : , 5 ); i_tz = i_arr( : , 6 );
 
 a = -8;
 b = 8;
@@ -33,6 +37,11 @@ ma = linspace(m_rx, b, 100);
 mb = linspace(m_ry, a, 100);
 mc = linspace(m_rz, a, 100);
 plot3(ma, mb, mc, 'LineWidth', 3, 'Color', 'g')
+
+ia = linspace(i_rx, b, 100);
+ib = linspace(i_ry, a, 100);
+ic = linspace(i_rz, b, 100);
+plot3(ia, ib, ic, 'LineWidth', 3, 'Color', 'y')
 
 axis([a,b,a,b,a,b])
 view(-30,10)
@@ -60,6 +69,11 @@ ma = linspace(m_tx, b, 100);
 mb = linspace(m_ty, a, 100);
 mc = linspace(m_tz, a, 100);
 plot3(ma, mb, mc, 'LineWidth', 3, 'Color', 'g')
+
+ia_t = linspace(i_tx, b, 100);
+ib_t = linspace(i_ty, a, 100);
+ic_t = linspace(i_tz, b, 100);
+plot3(ia_t, ib_t, ic_t, 'LineWidth', 3, 'Color', 'y')
 
 
 axis([a,b,a,b,a,b])

@@ -38,6 +38,7 @@ public:
 	int				GetNumberControlPoints() const { return controlPoints.size(); };
 
 	std::list<cv::Point2d> GetProjectedControlPoints() const;
+	//std::vector<cv::Point2f> GetProjectedControlPointsVector() const;
 private:
 	std::vector<cv::Mat>	cornerPoints;		// corner points in model coords
 	cv::Mat					cameraMatrix, distortionCoefficients;

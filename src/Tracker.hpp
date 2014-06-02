@@ -40,14 +40,7 @@ public:
 
     virtual Model ProcessFrame(const cv::Mat& frame);
 
-    virtual void getSubVectors(
-		const std::vector<cv::Point3f> modelPoints3D, 
-		const std::vector<cv::Point2f> foundBoxPoints2D, 
-		const std::vector<unsigned> subset, 
-		std::vector<cv::Point3f> &out_subModelPoints3D,
-		std::vector<cv::Point2f> &out_subFoundBoxPoints2D) const;
-
-	virtual void SetRansacImage(const cv::Mat& _extraImage) 
+	virtual void SetExtraImage(const cv::Mat& _extraImage) 
 	{
 		extraImage = _extraImage.clone();
 	}

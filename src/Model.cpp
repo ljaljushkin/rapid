@@ -314,3 +314,17 @@ std::list<Point2d> Model::GetProjectedControlPoints() const
 
 	return projectedPoints;
 }
+
+//std::vector<Point2f> Model::GetProjectedControlPointsVector() const
+//{
+//	std::vector<Point2f> projectedPoints;
+//
+//	for(std::list<Mat>::const_iterator controlPointsIter = controlPoints.begin();
+//		controlPointsIter != controlPoints.end();
+//		controlPointsIter++)
+//	{
+//		projectedPoints.push_back(Project(*controlPointsIter));
+//	}
+//
+//	return projectedPoints;
+//}

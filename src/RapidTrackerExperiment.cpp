@@ -39,16 +39,7 @@ void RAPIDTrackerExperiment::OutputRvecAndTvec(const Mat& rvec, const Mat& tvec,
 	file << delta_tvec.at<double>(2, 0) << endl;
 }
 
-void printVector(std::vector<unsigned>& vector)
-{
-	std::vector<unsigned>::iterator Iter = vector.begin();
-	while (Iter != vector.end())
-	{
-		cout<<*Iter<<" ";
-		Iter++;
-	}
-	cout<<endl;
-}
+
 
 void RAPIDTrackerExperiment::RunSolvePnP(
 	const std::vector<Point2f> foundBoxPoints2D,
@@ -79,8 +70,8 @@ void RAPIDTrackerExperiment::RunSolvePnP(
 		std::vector<Point3f> subModelPoints3D;
 		std::vector<Point2f> subFoundBoxPoints2D;
 
-		getSubVectors(modelPoints3D, foundBoxPoints2D, subset, subModelPoints3D, subFoundBoxPoints2D);
-		printVector(subset);
+		util::getSubVectors(modelPoints3D, foundBoxPoints2D, subset, subModelPoints3D, subFoundBoxPoints2D);
+		util::printVector(subset);
 
 		solvePnP(Mat(subModelPoints3D), Mat(subFoundBoxPoints2D), model.cameraMatrix,
 			model.distortionCoefficients, out_rvec, out_tvec, false);

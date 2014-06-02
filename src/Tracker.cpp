@@ -282,17 +282,3 @@ Model Tracker::ProcessFrame(const Mat& frame)
 
     return model;
 }
-
-void Tracker::getSubVectors(
-	const std::vector<Point3f> modelPoints3D, 
-	const std::vector<Point2f> foundBoxPoints2D, 
-	const std::vector<unsigned> subset, 
-	std::vector<Point3f> &out_subModelPoints3D,
-	std::vector<Point2f> &out_subFoundBoxPoints2D) const
-{
-	for (int i = 0; i < subset.size(); i++)
-	{
-		out_subModelPoints3D.push_back(modelPoints3D[subset[i]]);
-		out_subFoundBoxPoints2D.push_back(foundBoxPoints2D[subset[i]]);
-	}
-}
