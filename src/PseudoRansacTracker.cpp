@@ -25,6 +25,7 @@ PseudoRansacTracker::PseudoRansacTracker(
 { 
     meanShift3DRotate = new MeanShift3D(_ms_maxIter, _ms_epsR, _ms_windowSizesR);
     meanShift3DTranslate = new MeanShift3D(_ms_maxIter, _ms_epsT, _ms_windowSizesT);
+	rng = new util::RandomGenerator(1992);
 }
 
 void PseudoRansacTracker::OutputRvecAndTvec(const Mat& rvec, const Mat& tvec, std::ofstream& file) const
@@ -62,7 +63,7 @@ void PseudoRansacTracker::RunSolvePnP(
     const unsigned int n = model.controlPoints.size();
     std::vector<unsigned> subset(4);
 
-    util::RandomGenerator rng(time(NULL));
+    //util::RandomGenerator rng(time(NULL));
 
     Mat rvec, tvec;
     for(int i=0; i < iter; i++)
@@ -70,7 +71,7 @@ void PseudoRansacTracker::RunSolvePnP(
 		std::vector<Point3f> subModelPoints3D;
 		std::vector<Point2f> subFoundBoxPoints2D;
 
-	    rng.drawUniformSubset(n-1, 4, subset);
+	    rng->drawUniformSubset(n-1, 4, subset);
 
 	    getSubVectors(modelPoints3D, foundBoxPoints2D, subset, subModelPoints3D, subFoundBoxPoints2D);
 
@@ -96,27 +97,40 @@ void PseudoRansacTracker::RunSolvePnP(
         }
     }
 
-	/*solvePnPRansac(Mat(modelPoints3D), Mat(foundBoxPoints2D), model.cameraMatrix,
-		model.distortionCoefficients, out_rvec, out_tvec, false,
+	Mat out_rvec_r, out_tvec_r;
+	solvePnPRansac(Mat(modelPoints3D), Mat(foundBoxPoints2D), model.cameraMatrix,
+		model.distortionCoefficients, out_rvec_r, out_tvec_r, false,
 		100, 8, 20);
-	OutputRvecAndTvec(out_rvec, out_tvec, file_r);*/
+	OutputRvecAndTvec(out_rvec_r, out_tvec_r, file_r);
+
+	/*Model ransacModel(model);
+	ransacModel.updatePose(out_rvec_r - ransacModel.rotationVector, out_tvec_r - ransacModel.translateVector);
+	Mat image = ransacModel.Outline(extraImage);
+	imshow("Ransac", image);*/
+	
 
 	Mat out_rvec_m, out_tvec_m;
 	meanShift3DRotate->execute(&rvecPool, out_rvec_m);
 	meanShift3DTranslate->execute(&tvecPool, out_tvec_m);
-	//out_rvec = out_rvec_m + model.rotationVector;
-	//out_tvec = out_tvec_m + model.translateVector;
-	//OutputRvecAndTvec(out_rvec, out_tvec, file_m);
+
 	out_rvec_m += model.rotationVector;
 	out_tvec_m += model.translateVector;
 	OutputRvecAndTvec(out_rvec_m, out_tvec_m, file_m);
-	
-	solvePnPRansac(Mat(modelPoints3D), Mat(foundBoxPoints2D), model.cameraMatrix,
-	model.distortionCoefficients, out_rvec, out_tvec, false,
-		100, 8, 20);
-	OutputRvecAndTvec(out_rvec, out_tvec, file_r);
 
-	cout<<"^^^^^^ Rotate error: "<<endl<<abs(out_rvec_m - out_rvec)<<endl;
-	cout<<"^^^^^^ Translate error: "<<endl<<abs(out_tvec_m - out_tvec)<<endl;
+	Model meanShiftModel(model);
+	meanShiftModel.updatePose(out_rvec_m - meanShiftModel.rotationVector, out_tvec_m - meanShiftModel.translateVector);
+	Mat image = meanShiftModel.Outline(extraImage);
+	imshow("meanShift", image);
+
+	cout<<"^^^^^^ Rotate error: "<<endl<<abs(out_rvec_m - out_rvec_r)<<endl;
+	cout<<"^^^^^^ Translate error: "<<endl<<abs(out_tvec_m - out_tvec_r)<<endl;
+
+	cout<<"Ransac_Rotate ^^^^^^^^^^ : "<<endl<<abs(out_rvec_r - model.rotationVector)<<endl;
+	cout<<"Ransac_Translate ^^^^^^^ : "<<endl<<abs(out_tvec_r - model.translateVector)<<endl;
+
+	out_rvec = out_rvec_r;
+	out_tvec = out_tvec_r;
 }
+
+
 

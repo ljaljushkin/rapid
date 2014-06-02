@@ -46,6 +46,11 @@ public:
 		const std::vector<unsigned> subset, 
 		std::vector<cv::Point3f> &out_subModelPoints3D,
 		std::vector<cv::Point2f> &out_subFoundBoxPoints2D) const;
+
+	virtual void SetRansacImage(const cv::Mat& _extraImage) 
+	{
+		extraImage = _extraImage.clone();
+	}
 protected:
     bool FindPoints(cv::Point2d controlPoint,
         cv::Point2d companionPoint,
@@ -55,4 +60,5 @@ protected:
 protected:
 	Model model;
     bool isLogsEnabled;
+	cv::Mat extraImage;
 };

@@ -2,6 +2,7 @@
 
 #include "Tracker.hpp"
 #include "MeanShift3D.hpp"
+#include "Util.hpp"
 
 //Default settings
 #define Max_Iter 2000
@@ -38,4 +39,5 @@ private:
     int iter;
     MeanShift3D* meanShift3DRotate;
     MeanShift3D* meanShift3DTranslate;
+	util::RandomGenerator* rng;
 };
