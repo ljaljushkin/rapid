@@ -43,7 +43,8 @@ private:
 		const std::vector<cv::Point2f> foundBoxPoints2D,
 		const std::list<cv::Point2d> projectedPoints,
 		const float reprojectionError,
-		std::vector<unsigned>& out_subset) const;
+		std::vector<unsigned>& out_subset,
+		double& out_sum_norm) const;
 private:
     int iter;
 	float reprojectionError;

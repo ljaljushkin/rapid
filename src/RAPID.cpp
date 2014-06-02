@@ -104,7 +104,7 @@ int main(int argn, char* argv[])
     //CvRansacTracker tracker(model, isLogsEnabled, 10, 0.5, 1);
 
     //CvRansacTracker tracker(model, isLogsEnabled, 100, 8, 20); // correct definition during the whole video (test_small_25.MOV)
-    PseudoRansacTracker tracker(model, isLogsEnabled, cv::Point3f(1,1,1), cv::Point3f(50,50,50), 500, 0.0001, 0.0001, 200, 8);
+    PseudoRansacTracker tracker(model, isLogsEnabled, cv::Point3f(0.2,0.2,0.2), cv::Point3f(20,20,40), 500, 0.01, 0.01, 100, 8);
 
     const std::string nextWindowName = "Next";
     const std::string currentWindowName = "Current";
@@ -136,7 +136,7 @@ int main(int argn, char* argv[])
 	        imshow(nextWindowName, workFrame);
 
             model.DrawReferencePoints(movieFrame, patternOrigin3D, cap.get(CV_CAP_PROP_POS_FRAMES), i);
-	        waitKey();
+	        waitKey(1);
 		}
 	}
 

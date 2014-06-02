@@ -52,12 +52,17 @@ void PseudoRansacTracker::FindInliers(
 	const std::vector<Point2f> foundBoxPoints2D,
 	const std::list<Point2d> projectedPoints,
 	const float reprojectionError,
-	std::vector<unsigned>& out_subset) const
+	std::vector<unsigned>& out_subset,
+	double& out_sum_norm) const
 {
+	out_sum_norm = 0;
 	std::list<Point2d>::const_iterator projectedPointsIter = projectedPoints.begin();
 	for( unsigned i = 0; i < foundBoxPoints2D.size(); i++, projectedPointsIter++)
 	{
-		if( norm((Point2f)*projectedPointsIter - foundBoxPoints2D[i]) < reprojectionError)
+		double curr_norm = norm((Point2f)*projectedPointsIter - foundBoxPoints2D[i]);
+		out_sum_norm += curr_norm;
+
+		if( curr_norm < reprojectionError)
 		{
 			out_subset.push_back(i);
 		}
@@ -70,11 +75,15 @@ void PseudoRansacTracker::RunSolvePnP(
     Mat& out_rvec,
     Mat& out_tvec) const
 {
-	std::ofstream file, file_r, file_m, file_i;
+	std::ofstream file, file_r, file_m, file_i, file_p;
 	file.open ("../others/matlab_workspace/mean_shift_rvec_and_tvec.txt");
 	file_r.open ("../others/matlab_workspace/ransac_rvec_and_tvec.txt");
 	file_m.open ("../others/matlab_workspace/center_rvec_and_tvec.txt");
 	file_i.open ("../others/matlab_workspace/with_inliers_rvec_and_tvec.txt");
+	file_p.open ("../others/matlab_workspace/precision.txt", std::ios::app);
+
+	double curr_precision;
+	std::vector<unsigned> inliers;
 
     std::list<Point3f> rvecPool;
     std::list<Point3f> tvecPool;
@@ -82,8 +91,26 @@ void PseudoRansacTracker::RunSolvePnP(
     const unsigned int n = model.controlPoints.size();
     std::vector<unsigned> subset(4);
 
-    //util::RandomGenerator rng(time(NULL));
+	// -------- just SolvePnP
+	Mat rvec_s, tvec_s;
+	solvePnP(
+		Mat(modelPoints3D),
+		Mat(foundBoxPoints2D),
+		model.cameraMatrix,
+		model.distortionCoefficients,
+		rvec_s,
+		tvec_s,
+		false);
 
+	Model solvePnPModel(model);
+	solvePnPModel.updatePose(rvec_s - solvePnPModel.rotationVector, tvec_s - solvePnPModel.translateVector);
+	FindInliers(foundBoxPoints2D, solvePnPModel.GetProjectedControlPoints(), reprojectionError, inliers, curr_precision);
+	file_p <<curr_precision;
+	cout<<"Found SolvePnP inliers --> ";
+	util::printVector(inliers);
+	inliers.clear();
+
+	// -------- generate set of 3D vectors for MeanShift
     Mat rvec, tvec;
     for(int i=0; i < iter; i++)
     {
@@ -116,7 +143,7 @@ void PseudoRansacTracker::RunSolvePnP(
         }
     }
 
-	// SolvePnPRansac
+	// -------------SolvePnPRansac
 	Mat out_rvec_r, out_tvec_r;
 	solvePnPRansac(Mat(modelPoints3D), Mat(foundBoxPoints2D), model.cameraMatrix,
 		model.distortionCoefficients, out_rvec_r, out_tvec_r, false,
@@ -129,7 +156,14 @@ void PseudoRansacTracker::RunSolvePnP(
 	Mat r_image = ransacModel.Outline(ransacExtraImage);
 	imshow("Ransac", r_image);
 
-	// MeanShift
+	
+	FindInliers(foundBoxPoints2D, ransacModel.GetProjectedControlPoints(), reprojectionError, inliers, curr_precision);
+	file_p << ", "<<curr_precision;
+	cout<<"Found Ransac inliers --> ";
+	util::printVector(inliers);
+	inliers.clear();
+
+	// --------------MeanShift
 	Mat out_rvec_m, out_tvec_m;
 	meanShift3DRotate->execute(&rvecPool, out_rvec_m);
 	meanShift3DTranslate->execute(&tvecPool, out_tvec_m);
@@ -151,8 +185,10 @@ void PseudoRansacTracker::RunSolvePnP(
 	cout<<"Ransac_Translate ^^^^^^^ : "<<endl<<abs(out_tvec_r -model .translateVector)<<endl;
 
 	// Improvement PseudoRansac algorithm
-	std::vector<unsigned> inliers;
-	FindInliers(foundBoxPoints2D, meanShiftModel.GetProjectedControlPoints(), reprojectionError, inliers);
+	
+	
+	FindInliers(foundBoxPoints2D, meanShiftModel.GetProjectedControlPoints(), reprojectionError, inliers, curr_precision);
+	file_p << ", " <<curr_precision;
 	cout<<"Found inliers --> ";
 	util::printVector(inliers);
 
@@ -160,6 +196,7 @@ void PseudoRansacTracker::RunSolvePnP(
 	std::vector<Point2f> subFoundBoxPoints2D;
 	util::getSubVectors(modelPoints3D, foundBoxPoints2D, inliers, subModelPoints3D, subFoundBoxPoints2D);
 	
+	// --------- Finish SolvePnP
 	solvePnP(
 		Mat(subModelPoints3D),
 		Mat(subFoundBoxPoints2D),
@@ -169,6 +206,16 @@ void PseudoRansacTracker::RunSolvePnP(
 		out_tvec,
 		false);
 	OutputRvecAndTvec(out_rvec, out_tvec, file_i);
+
+	Model finishSolvePnPModel(model);
+	finishSolvePnPModel.updatePose(out_rvec - finishSolvePnPModel.rotationVector, out_tvec - finishSolvePnPModel.translateVector);
+	
+	inliers.clear();
+	FindInliers(foundBoxPoints2D, finishSolvePnPModel.GetProjectedControlPoints(), reprojectionError, inliers, curr_precision);
+	file_p << ", "<<curr_precision<<endl;
+	cout<<"Found FinishSolvePnP inliers --> ";
+	util::printVector(inliers);
+
 
 	cout<<"Finish diff-rotate with ransac: "<<endl<<abs(out_rvec - out_rvec_r)<<endl;
 	cout<<"Finish diff-translate with ransac: "<<endl<<abs(out_tvec - out_tvec_r)<<endl;
