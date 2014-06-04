@@ -1,5 +1,5 @@
-arr = csvread('rvec_and_tvec.txt');
-r_arr = csvread('ransac_rvec_and_tvec.txt');
+arr = csvread('output/rvec_and_tvec.txt');
+r_arr = csvread('output/ransac_rvec_and_tvec.txt');
 
 rx = arr( : , 1 );
 ry = arr( : , 2 );

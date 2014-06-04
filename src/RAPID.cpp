@@ -92,7 +92,7 @@ int main(int argn, char* argv[])
         return 1;
     }
 
-	const int PointsPerEdge = 5;
+	const int PointsPerEdge = 100;
     Model model(videoInfo.GetCornerPoints(), PointsPerEdge, Camera_Matrix, Distortion_Coefficients, rVec, tVec, isLogsEnabled);
 
 	int n = model.GetNumberControlPoints();
@@ -119,7 +119,7 @@ int main(int argn, char* argv[])
     double timePerFrame;
 
     std::ofstream file;
-	file.open ("../others/matlab_workspace/perfomance/result.txt");
+	file.open ("../others/matlab_workspace/output/perfomance/perfomance.txt");
 
 	while (cap.read(movieFrame))
 	{
@@ -147,7 +147,7 @@ int main(int argn, char* argv[])
 	        imshow(nextWindowName, workFrame);
 
             model.DrawReferencePoints(movieFrame, patternOrigin3D, cap.get(CV_CAP_PROP_POS_FRAMES), i);
-	        waitKey(1);
+	        waitKey();
 		}
         file <<  timePerFrame << endl;
 	}

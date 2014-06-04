@@ -1,4 +1,4 @@
-arr = csvread('precision.txt');
+arr = csvread('output/precision/precision.txt');
 
 sp = arr( : , 1 );
 ms = arr( : , 2 ); 

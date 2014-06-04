@@ -1,7 +1,7 @@
-arr = csvread('mean_shift_rvec_and_tvec.txt');
-m_arr = csvread('center_rvec_and_tvec.txt');
-r_arr = csvread('ransac_rvec_and_tvec.txt');
-i_arr = csvread('with_inliers_rvec_and_tvec.txt');
+arr = csvread('output/mean_shift_rvec_and_tvec.txt');
+m_arr = csvread('output/center_rvec_and_tvec.txt');
+r_arr = csvread('output/ransac_rvec_and_tvec.txt');
+i_arr = csvread('output/with_inliers_rvec_and_tvec.txt');
 
 rx = arr( : , 1 ); ry = arr( : , 2 ); rz = arr( : , 3 );
 tx = arr( : , 4 ); ty = arr( : , 5 ); tz = arr( : , 6 );

@@ -10,7 +10,7 @@ using std::cout;
 using std::endl;
 
 using namespace cv;
-#define PERFOMANCE_MODE
+//#define PERFOMANCE_MODE
 
 PseudoRansacTracker::PseudoRansacTracker(
     Model model,
@@ -84,7 +84,7 @@ void PseudoRansacTracker::RunSolvePnP(
     std::list<Point3f> rvecPool;
     std::list<Point3f> tvecPool;
 
-    const unsigned int n = model.controlPoints.size();
+    const unsigned int n = modelPoints3D.size();
     std::vector<unsigned> subset(4);
 
 	// -------- generate set of 3D vectors for MeanShift
@@ -136,6 +136,19 @@ void PseudoRansacTracker::RunSolvePnP(
 		out_rvec,
 		out_tvec,
 		false);
+
+	Model finishSolvePnPModel(model);
+	finishSolvePnPModel.updatePose(out_rvec - finishSolvePnPModel.rotationVector, out_tvec - finishSolvePnPModel.translateVector);
+
+	std::vector<unsigned> finalInliers;
+	FindInliers(foundBoxPoints2D, finishSolvePnPModel.GetProjectedControlPoints(), reprojectionError, finalInliers, curr_precision);
+
+	if(finalInliers.size() < inliers.size())
+	{
+		out_rvec = out_rvec_m;
+		out_tvec = out_tvec_m;
+	}
+
 }
 #else
 
@@ -146,11 +159,11 @@ void PseudoRansacTracker::RunSolvePnP(
     Mat& out_tvec) const
 {
 	std::ofstream file, file_r, file_m, file_i, file_p;
-	file.open ("../others/matlab_workspace/mean_shift_rvec_and_tvec.txt");
-	file_r.open ("../others/matlab_workspace/ransac_rvec_and_tvec.txt");
-	file_m.open ("../others/matlab_workspace/center_rvec_and_tvec.txt");
-	file_i.open ("../others/matlab_workspace/with_inliers_rvec_and_tvec.txt");
-	file_p.open ("../others/matlab_workspace/precision.txt", std::ios::app);
+	file.open ("../others/matlab_workspace/output/mean_shift_rvec_and_tvec.txt");
+	file_r.open ("../others/matlab_workspace/output/ransac_rvec_and_tvec.txt");
+	file_m.open ("../others/matlab_workspace/output/center_rvec_and_tvec.txt");
+	file_i.open ("../others/matlab_workspace/output/with_inliers_rvec_and_tvec.txt");
+	file_p.open ("../others/matlab_workspace/output/precision/precision.txt", std::ios::app);
 
 	double curr_precision;
 	std::vector<unsigned> inliers;
@@ -158,7 +171,7 @@ void PseudoRansacTracker::RunSolvePnP(
     std::list<Point3f> rvecPool;
     std::list<Point3f> tvecPool;
 
-    const unsigned int n = model.controlPoints.size();
+    const unsigned int n = modelPoints3D.size();
     std::vector<unsigned> subset(4);
 
 	// -------- just SolvePnP
@@ -280,12 +293,17 @@ void PseudoRansacTracker::RunSolvePnP(
 	Model finishSolvePnPModel(model);
 	finishSolvePnPModel.updatePose(out_rvec - finishSolvePnPModel.rotationVector, out_tvec - finishSolvePnPModel.translateVector);
 	
-	inliers.clear();
-	FindInliers(foundBoxPoints2D, finishSolvePnPModel.GetProjectedControlPoints(), reprojectionError, inliers, curr_precision);
+	std::vector<unsigned> finalInliers;
+	FindInliers(foundBoxPoints2D, finishSolvePnPModel.GetProjectedControlPoints(), reprojectionError, finalInliers, curr_precision);
 	file_p << ", "<<curr_precision<<endl;
 	cout<<"Found FinishSolvePnP inliers --> ";
-	util::printVector(inliers);
+	util::printVector(finalInliers);
 
+	if(finalInliers.size() < inliers.size())
+	{
+		out_rvec = out_rvec_m;
+		out_tvec = out_tvec_m;
+	}
 
 	cout<<"Finish diff-rotate with ransac: "<<endl<<abs(out_rvec - out_rvec_r)<<endl;
 	cout<<"Finish diff-translate with ransac: "<<endl<<abs(out_tvec - out_tvec_r)<<endl;
