@@ -22,7 +22,7 @@ void MeanShift3D::execute(
     const std::list<cv::Point3f>* setOfPoints,
     cv::Mat& foundCenter) const
 {
-    cout<<"------------------------MeanShift was started"<<std::endl;
+    //cout<<"------------------------MeanShift was started"<<std::endl;
     float dx = windowSizes.x/2;
     float dy = windowSizes.y/2;
     float dz = windowSizes.z/2;
@@ -32,13 +32,13 @@ void MeanShift3D::execute(
 
     //Point3f center(*setOfPointsIter);
     Point3f center(0,0,0);
-    cout<<"first_center: "<<center<<std::endl;
+    //cout<<"first_center: "<<center<<std::endl;
 
     int countInside = 0, numIter = 0;
 
     while(numIter != maxIter)
     {
-        cout<<numIter<<" <--- Iter"<<std::endl;
+        //cout<<numIter<<" <--- Iter"<<std::endl;
         setOfPointsIter = setOfPoints->begin();
         countInside = 0;
         Point3f sum(0,0,0);
@@ -55,7 +55,7 @@ void MeanShift3D::execute(
             setOfPointsIter++;
         }
 
-        cout<<"countInside: "<<countInside<<std::endl;
+        //cout<<"countInside: "<<countInside<<std::endl;
 
         float nx = sum.x/countInside;
         float ny = sum.y/countInside;
@@ -66,7 +66,7 @@ void MeanShift3D::execute(
             center.x = nx;
             center.y = ny;
             center.z = nz;
-            cout<<"new_center: "<<center<<std::endl;
+            //cout<<"new_center: "<<center<<std::endl;
         }
         else
         {
@@ -81,6 +81,6 @@ void MeanShift3D::execute(
     foundCenter.at<double>(0, 0) = center.x;
     foundCenter.at<double>(1, 0) = center.y;
     foundCenter.at<double>(2, 0) = center.z;
-    cout<<"found_center: "<<foundCenter<<std::endl;
-    cout<<"MeanShift was finished------------------------"<<std::endl;
+    //cout<<"found_center: "<<foundCenter<<std::endl;
+    //cout<<"MeanShift was finished------------------------"<<std::endl;
 }

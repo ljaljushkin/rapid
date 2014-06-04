@@ -115,10 +115,16 @@ int main(int argn, char* argv[])
     const int iterationsThreshold = 13;
 	const double precisionFreshold = 1e-1;
 
+    cvflann::StartStopTimer timer;
+    double timePerFrame;
+
+    std::ofstream file;
+	file.open ("../others/matlab_workspace/perfomance/result.txt");
+
 	while (cap.read(movieFrame))
 	{
 		double precision = DBL_MAX;
-
+        timePerFrame = 0;
         for(int i = 0; (precision > precisionFreshold) && ( i < iterationsThreshold); i++)
         {
             Mat workFrame = movieFrame.clone();
@@ -129,7 +135,12 @@ int main(int argn, char* argv[])
 	        imshow(currentWindowName, prev);
 
 			Model prevModel = model;
+
+            timer.start();
 	        model = tracker.ProcessFrame(workFrame);
+            timer.stop();
+            timePerFrame += timer.value;
+
 			precision = tracker.GetConvergenceMeasure(prevModel, model, NORM_INF);
 
 	        workFrame = model.Outline(workFrame);
@@ -138,7 +149,9 @@ int main(int argn, char* argv[])
             model.DrawReferencePoints(movieFrame, patternOrigin3D, cap.get(CV_CAP_PROP_POS_FRAMES), i);
 	        waitKey(1);
 		}
+        file <<  timePerFrame << endl;
 	}
+    file.close();
 
 	return 0;
 }

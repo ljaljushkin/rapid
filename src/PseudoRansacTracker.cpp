@@ -10,6 +10,7 @@ using std::cout;
 using std::endl;
 
 using namespace cv;
+#define PERFOMANCE_MODE
 
 PseudoRansacTracker::PseudoRansacTracker(
     Model model,
@@ -68,6 +69,75 @@ void PseudoRansacTracker::FindInliers(
 		}
 	}
 }
+
+#ifdef PERFOMANCE_MODE
+
+void PseudoRansacTracker::RunSolvePnP(
+    const std::vector<Point2f> foundBoxPoints2D,
+    const std::vector<Point3f> modelPoints3D,
+    Mat& out_rvec,
+    Mat& out_tvec) const
+{
+    double curr_precision;
+	std::vector<unsigned> inliers;
+
+    std::list<Point3f> rvecPool;
+    std::list<Point3f> tvecPool;
+
+    const unsigned int n = model.controlPoints.size();
+    std::vector<unsigned> subset(4);
+
+	// -------- generate set of 3D vectors for MeanShift
+    Mat rvec, tvec;
+    for(int i=0; i < iter; i++)
+    {
+		std::vector<Point3f> subModelPoints3D;
+		std::vector<Point2f> subFoundBoxPoints2D;
+
+	    rng->drawUniformSubset(n-1, 4, subset);
+
+	    util::getSubVectors(modelPoints3D, foundBoxPoints2D, subset, subModelPoints3D, subFoundBoxPoints2D);
+
+        solvePnP(
+            Mat(subModelPoints3D),
+            Mat(subFoundBoxPoints2D),
+            model.cameraMatrix,
+            model.distortionCoefficients,
+            rvec,
+            tvec,
+            false);
+
+        rvecPool.push_back(Point3f(Mat(rvec - model.rotationVector)));
+        tvecPool.push_back(Point3f(Mat(tvec - model.translateVector)));
+    }
+	
+	Mat out_rvec_m, out_tvec_m;
+	meanShift3DRotate->execute(&rvecPool, out_rvec_m);
+	meanShift3DTranslate->execute(&tvecPool, out_tvec_m);
+
+	out_rvec_m += model.rotationVector;
+	out_tvec_m += model.translateVector;
+
+	Model meanShiftModel(model);
+	meanShiftModel.updatePose(out_rvec_m - model.rotationVector, out_tvec_m - model.translateVector);
+	
+	FindInliers(foundBoxPoints2D, meanShiftModel.GetProjectedControlPoints(), reprojectionError, inliers, curr_precision);
+
+	std::vector<Point3f> subModelPoints3D;
+	std::vector<Point2f> subFoundBoxPoints2D;
+	util::getSubVectors(modelPoints3D, foundBoxPoints2D, inliers, subModelPoints3D, subFoundBoxPoints2D);
+	
+	// --------- Finish SolvePnP
+	solvePnP(
+		Mat(subModelPoints3D),
+		Mat(subFoundBoxPoints2D),
+		model.cameraMatrix,
+		model.distortionCoefficients,
+		out_rvec,
+		out_tvec,
+		false);
+}
+#else
 
 void PseudoRansacTracker::RunSolvePnP(
     const std::vector<Point2f> foundBoxPoints2D,
@@ -220,6 +290,4 @@ void PseudoRansacTracker::RunSolvePnP(
 	cout<<"Finish diff-rotate with ransac: "<<endl<<abs(out_rvec - out_rvec_r)<<endl;
 	cout<<"Finish diff-translate with ransac: "<<endl<<abs(out_tvec - out_tvec_r)<<endl;
 }
-
-
-
+#endif

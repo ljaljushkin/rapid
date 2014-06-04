@@ -1,3 +1,5 @@
+#include <fstream>
+
 #include "Tracker.hpp"
 
 using std::cout;
