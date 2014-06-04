@@ -189,8 +189,8 @@ void PseudoRansacTracker::RunSolvePnP(
 	solvePnPModel.updatePose(rvec_s - solvePnPModel.rotationVector, tvec_s - solvePnPModel.translateVector);
 	FindInliers(foundBoxPoints2D, solvePnPModel.GetProjectedControlPoints(), reprojectionError, inliers, curr_precision);
 	file_p <<curr_precision;
-	cout<<"Found SolvePnP inliers --> ";
-	util::printVector(inliers);
+	/*cout<<"Found SolvePnP inliers --> ";
+	util::printVector(inliers);*/
 	inliers.clear();
 
 	// -------- generate set of 3D vectors for MeanShift
@@ -242,8 +242,8 @@ void PseudoRansacTracker::RunSolvePnP(
 	
 	FindInliers(foundBoxPoints2D, ransacModel.GetProjectedControlPoints(), reprojectionError, inliers, curr_precision);
 	file_p << ", "<<curr_precision;
-	cout<<"Found Ransac inliers --> ";
-	util::printVector(inliers);
+	/*cout<<"Found Ransac inliers --> ";
+	util::printVector(inliers);*/
 	inliers.clear();
 
 	// --------------MeanShift
@@ -272,8 +272,8 @@ void PseudoRansacTracker::RunSolvePnP(
 	
 	FindInliers(foundBoxPoints2D, meanShiftModel.GetProjectedControlPoints(), reprojectionError, inliers, curr_precision);
 	file_p << ", " <<curr_precision;
-	cout<<"Found inliers --> ";
-	util::printVector(inliers);
+	/*cout<<"Found inliers --> ";
+	util::printVector(inliers);*/
 
 	std::vector<Point3f> subModelPoints3D;
 	std::vector<Point2f> subFoundBoxPoints2D;
@@ -296,8 +296,9 @@ void PseudoRansacTracker::RunSolvePnP(
 	std::vector<unsigned> finalInliers;
 	FindInliers(foundBoxPoints2D, finishSolvePnPModel.GetProjectedControlPoints(), reprojectionError, finalInliers, curr_precision);
 	file_p << ", "<<curr_precision<<endl;
-	cout<<"Found FinishSolvePnP inliers --> ";
-	util::printVector(finalInliers);
+
+	/*cout<<"Found FinishSolvePnP inliers --> ";
+	util::printVector(inliers);*/
 
 	if(finalInliers.size() < inliers.size())
 	{
