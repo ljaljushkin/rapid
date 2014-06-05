@@ -103,8 +103,16 @@ int main(int argn, char* argv[])
 
     //CvRansacTracker tracker(model, isLogsEnabled, 10, 0.5, 1);
 
-    //CvRansacTracker tracker(model, isLogsEnabled, 100, 8, 20); // correct definition during the whole video (test_small_25.MOV)
-    PseudoRansacTracker tracker(model, isLogsEnabled, cv::Point3f(0.2,0.2,0.2), cv::Point3f(20,20,40), 500, 0.01, 0.01, 100, 8);
+    std::ofstream file,file_p;
+
+	//CvRansacTracker tracker(model, isLogsEnabled, 100, 4, 300); // correct definition during the whole video (test_small_25.MOV)
+	//file.open ("../others/matlab_workspace/output/perfomance/r_perfomance.txt");
+
+    PseudoRansacTracker tracker(model, isLogsEnabled, cv::Point3f(0.2,0.2,0.2), cv::Point3f(20,20,40), 500, 0.01, 0.01, 100, 4);
+	file.open ("../others/matlab_workspace/output/perfomance/m_perfomance.txt");
+	/*file_p.open ("../others/matlab_workspace/output/precision/precision.txt");
+	file_p.close();
+*/
 
     const std::string nextWindowName = "Next";
     const std::string currentWindowName = "Current";
@@ -116,15 +124,13 @@ int main(int argn, char* argv[])
 	const double precisionFreshold = 1e-1;
 
     cvflann::StartStopTimer timer;
-    double timePerFrame;
-
-    std::ofstream file;
-	file.open ("../others/matlab_workspace/output/perfomance/perfomance.txt");
+    double timePerFrame, totalTime = 0;
 
 	while (cap.read(movieFrame))
 	{
 		double precision = DBL_MAX;
         timePerFrame = 0;
+		timer.reset();
         for(int i = 0; (precision > precisionFreshold) && ( i < iterationsThreshold); i++)
         {
             Mat workFrame = movieFrame.clone();
@@ -147,9 +153,10 @@ int main(int argn, char* argv[])
 	        imshow(nextWindowName, workFrame);
 
             model.DrawReferencePoints(movieFrame, patternOrigin3D, cap.get(CV_CAP_PROP_POS_FRAMES), i);
-	        waitKey();
+	        waitKey(1);
 		}
-        file <<  timePerFrame << endl;
+		totalTime+=timePerFrame;
+        file <<  totalTime << endl;
 	}
     file.close();
 

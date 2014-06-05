@@ -65,7 +65,7 @@ void CvRansacTracker::RunSolvePnP(
     double curr_precision;
 	FindInliers(foundBoxPoints2D, ransacModel.GetProjectedControlPoints(), _reprojectionError, inliers, curr_precision);
 
-    cout << "ransac precision: " << curr_precision << endl;
+    //cout << "ransac precision: " << curr_precision << endl;
 
     // --------- Finish SolvePnP
 
@@ -73,22 +73,39 @@ void CvRansacTracker::RunSolvePnP(
 	std::vector<Point2f> subFoundBoxPoints2D;
 	util::getSubVectors(modelPoints3D, foundBoxPoints2D, inliers, subModelPoints3D, subFoundBoxPoints2D);
 		
-	solvePnP(
-		Mat(subModelPoints3D),
-		Mat(subFoundBoxPoints2D),
-		model.cameraMatrix,
-		model.distortionCoefficients,
-		out_rvec,
-		out_tvec,
-		false);
+	if (inliers.size() >= 4)
+	{
+		solvePnP(
+			Mat(subModelPoints3D),
+			Mat(subFoundBoxPoints2D),
+			model.cameraMatrix,
+			model.distortionCoefficients,
+			out_rvec,
+			out_tvec,
+			false);
 
-    Model finalModel(model);
-	ransacModel.updatePose(rvec - finalModel.rotationVector, tvec - finalModel.translateVector);
+		Model finalModel(model);
+		finalModel.updatePose(out_rvec - finalModel.rotationVector, out_tvec - finalModel.translateVector);
+		Mat finalExtraImage = extraImage.clone();
+		Mat r_image = finalModel.Outline(finalExtraImage);
+		imshow("afterSolvePnP", r_image);
+
+		inliers.clear();
+		double final_precision;
+		FindInliers(foundBoxPoints2D, finalModel.GetProjectedControlPoints(), _reprojectionError, inliers, final_precision);
 	
-    inliers.clear();
-	FindInliers(foundBoxPoints2D, finalModel.GetProjectedControlPoints(), _reprojectionError, inliers, curr_precision);
-	
-    cout << "final precision: " << curr_precision << endl;
+		if (final_precision > curr_precision)
+		{
+			out_rvec = rvec;
+			out_tvec = tvec;
+		}
+	}
+	else
+	{
+		out_rvec = rvec;
+		out_tvec = tvec;
+	}
+    //cout << "final precision: " << curr_precision << endl;
 
     if (isLogsEnabled)
     {

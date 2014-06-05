@@ -10,7 +10,7 @@ using std::cout;
 using std::endl;
 
 using namespace cv;
-//#define PERFOMANCE_MODE
+#define PERFOMANCE_MODE
 
 PseudoRansacTracker::PseudoRansacTracker(
     Model model,
@@ -87,6 +87,12 @@ void PseudoRansacTracker::RunSolvePnP(
     const unsigned int n = modelPoints3D.size();
     std::vector<unsigned> subset(4);
 
+	/*parallel_for(BlockedRange(0,iterationsCount), cv::pnpransac::PnPSolver(objectPoints, imagePoints, params,
+		localRvec, localTvec, localInliers));
+		to see!
+		C:\opencv\sources\modules\calib3d\src\solvepnp.cpp
+		*/
+
 	// -------- generate set of 3D vectors for MeanShift
     Mat rvec, tvec;
     for(int i=0; i < iter; i++)
@@ -127,28 +133,35 @@ void PseudoRansacTracker::RunSolvePnP(
 	std::vector<Point2f> subFoundBoxPoints2D;
 	util::getSubVectors(modelPoints3D, foundBoxPoints2D, inliers, subModelPoints3D, subFoundBoxPoints2D);
 	
-	// --------- Finish SolvePnP
-	solvePnP(
-		Mat(subModelPoints3D),
-		Mat(subFoundBoxPoints2D),
-		model.cameraMatrix,
-		model.distortionCoefficients,
-		out_rvec,
-		out_tvec,
-		false);
+	if(inliers.size() >= 4)
+	{
+		// --------- Finish SolvePnP
+		solvePnP(
+			Mat(subModelPoints3D),
+			Mat(subFoundBoxPoints2D),
+			model.cameraMatrix,
+			model.distortionCoefficients,
+			out_rvec,
+			out_tvec,
+			false);
 
-	Model finishSolvePnPModel(model);
-	finishSolvePnPModel.updatePose(out_rvec - finishSolvePnPModel.rotationVector, out_tvec - finishSolvePnPModel.translateVector);
+		Model finishSolvePnPModel(model);
+		finishSolvePnPModel.updatePose(out_rvec - finishSolvePnPModel.rotationVector, out_tvec - finishSolvePnPModel.translateVector);
 
-	std::vector<unsigned> finalInliers;
-	FindInliers(foundBoxPoints2D, finishSolvePnPModel.GetProjectedControlPoints(), reprojectionError, finalInliers, curr_precision);
+		std::vector<unsigned> finalInliers;
+		FindInliers(foundBoxPoints2D, finishSolvePnPModel.GetProjectedControlPoints(), reprojectionError, finalInliers, curr_precision);
 
-	if(finalInliers.size() < inliers.size())
+		if(finalInliers.size() < inliers.size())
+		{
+			out_rvec = out_rvec_m;
+			out_tvec = out_tvec_m;
+		}
+	}
+	else
 	{
 		out_rvec = out_rvec_m;
 		out_tvec = out_tvec_m;
 	}
-
 }
 #else
 
@@ -189,8 +202,8 @@ void PseudoRansacTracker::RunSolvePnP(
 	solvePnPModel.updatePose(rvec_s - solvePnPModel.rotationVector, tvec_s - solvePnPModel.translateVector);
 	FindInliers(foundBoxPoints2D, solvePnPModel.GetProjectedControlPoints(), reprojectionError, inliers, curr_precision);
 	file_p <<curr_precision;
-	/*cout<<"Found SolvePnP inliers --> ";
-	util::printVector(inliers);*/
+	cout<<"Found SolvePnP inliers --> ";
+	util::printVector(inliers);
 	inliers.clear();
 
 	// -------- generate set of 3D vectors for MeanShift
@@ -242,8 +255,8 @@ void PseudoRansacTracker::RunSolvePnP(
 	
 	FindInliers(foundBoxPoints2D, ransacModel.GetProjectedControlPoints(), reprojectionError, inliers, curr_precision);
 	file_p << ", "<<curr_precision;
-	/*cout<<"Found Ransac inliers --> ";
-	util::printVector(inliers);*/
+	cout<<"Found Ransac inliers --> ";
+	util::printVector(inliers);
 	inliers.clear();
 
 	// --------------MeanShift
@@ -272,35 +285,50 @@ void PseudoRansacTracker::RunSolvePnP(
 	
 	FindInliers(foundBoxPoints2D, meanShiftModel.GetProjectedControlPoints(), reprojectionError, inliers, curr_precision);
 	file_p << ", " <<curr_precision;
-	/*cout<<"Found inliers --> ";
-	util::printVector(inliers);*/
+	cout<<"Found inliers --> ";
+	util::printVector(inliers);
 
 	std::vector<Point3f> subModelPoints3D;
 	std::vector<Point2f> subFoundBoxPoints2D;
 	util::getSubVectors(modelPoints3D, foundBoxPoints2D, inliers, subModelPoints3D, subFoundBoxPoints2D);
 	
-	// --------- Finish SolvePnP
-	solvePnP(
-		Mat(subModelPoints3D),
-		Mat(subFoundBoxPoints2D),
-		model.cameraMatrix,
-		model.distortionCoefficients,
-		out_rvec,
-		out_tvec,
-		false);
-	OutputRvecAndTvec(out_rvec, out_tvec, file_i);
+	if (inliers.size() >= 4)
+	{
 
-	Model finishSolvePnPModel(model);
-	finishSolvePnPModel.updatePose(out_rvec - finishSolvePnPModel.rotationVector, out_tvec - finishSolvePnPModel.translateVector);
+		// --------- Finish SolvePnP
+		solvePnP(
+			Mat(subModelPoints3D),
+			Mat(subFoundBoxPoints2D),
+			model.cameraMatrix,
+			model.distortionCoefficients,
+			out_rvec,
+			out_tvec,
+			false);
+		OutputRvecAndTvec(out_rvec, out_tvec, file_i);
+
+		Model finishSolvePnPModel(model);
+		finishSolvePnPModel.updatePose(out_rvec - finishSolvePnPModel.rotationVector, out_tvec - finishSolvePnPModel.translateVector);
 	
-	std::vector<unsigned> finalInliers;
-	FindInliers(foundBoxPoints2D, finishSolvePnPModel.GetProjectedControlPoints(), reprojectionError, finalInliers, curr_precision);
-	file_p << ", "<<curr_precision<<endl;
+		std::vector<unsigned> finalInliers;
+		double final_precision;
+		FindInliers(foundBoxPoints2D, finishSolvePnPModel.GetProjectedControlPoints(), reprojectionError, finalInliers, final_precision);
+		file_p << ", "<<final_precision<<endl;
 
-	/*cout<<"Found FinishSolvePnP inliers --> ";
-	util::printVector(inliers);*/
+		cout<<"Found FinishSolvePnP inliers --> ";
+		util::printVector(inliers);
 
-	if(finalInliers.size() < inliers.size())
+		/*if(finalInliers.size() < inliers.size())
+		{
+			out_rvec = out_rvec_m;
+			out_tvec = out_tvec_m;
+		}*/
+		if ((finalInliers.size() < inliers.size()) || (final_precision > curr_precision))
+		{
+			out_rvec = out_rvec_m;
+			out_tvec = out_tvec_m;
+		}
+	}
+	else
 	{
 		out_rvec = out_rvec_m;
 		out_tvec = out_tvec_m;
