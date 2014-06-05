@@ -22,24 +22,24 @@ const char wrongInliersIndices[] = {"LineDistanceFunctor return wrong inlier ind
 class LineFittingTest : public ::testing::Test
 {
 protected:
-   void SetUp()
-   {
-       lf::FillData(allData);
-   }
+    void SetUp()
+    {
+        lf::FillData(allData);
+    }
 protected:
-   std::vector<cv::Point2d> allData;
+    std::vector<cv::Point2d> allData;
 
-   //for execute
-   std::vector<unsigned> out_best_inliers;
-   cv::Point2d out_best_model;
+    //for execute
+    std::vector<unsigned> out_best_inliers;
+    cv::Point2d out_best_model;
 
-   //for LineFitFunctor
-   std::vector<cv::Point2d> fitModels;
-   std::vector<unsigned> useIndices;
+    //for LineFitFunctor
+    std::vector<cv::Point2d> fitModels;
+    std::vector<unsigned> useIndices;
 
-   //for LineDistanceFunctor
-   unsigned out_bestModelIndex;
-   std::vector<unsigned> out_inlierIndices;
+    //for LineDistanceFunctor
+    unsigned out_bestModelIndex;
+    std::vector<unsigned> out_inlierIndices;
 };
 
 TEST_F(LineFittingTest, LineFunctors)
@@ -102,15 +102,15 @@ TEST_F(LineFittingTest, ExecuteQuitContaminated)
     const size_t maxIter = 2000;
 
     od::Ransac<cv::Point2d,cv::Point2d>::execute(
-           allData_const,
-           lf::LineFitFunctor,
-           lf::LineDistanceFunctor,
-           distanceThreshold,
-           minimumSizeSamplesToFit,
-           out_best_inliers,
-           out_best_model,
-           prob_good_sample,
-           maxIter);
+        allData_const,
+        lf::LineFitFunctor,
+        lf::LineDistanceFunctor,
+        distanceThreshold,
+        minimumSizeSamplesToFit,
+        out_best_inliers,
+        out_best_model,
+        prob_good_sample,
+        maxIter);
 
     EXPECT_EQ(cv::Point2d(1,0), out_best_model) << unexpectedBestModel;
     EXPECT_EQ(6, out_best_inliers.size()) << unexpectedNumInliers;
@@ -133,15 +133,15 @@ TEST_F(LineFittingTest, ExecuteAlmostUncontaminated)
     const size_t maxIter = 2000;
 
     od::Ransac<cv::Point2d,cv::Point2d>::execute(
-           allData_const,
-           lf::LineFitFunctor,
-           lf::LineDistanceFunctor,
-           distanceThreshold,
-           minimumSizeSamplesToFit,
-           out_best_inliers,
-           out_best_model,
-           prob_good_sample,
-           maxIter);
+        allData_const,
+        lf::LineFitFunctor,
+        lf::LineDistanceFunctor,
+        distanceThreshold,
+        minimumSizeSamplesToFit,
+        out_best_inliers,
+        out_best_model,
+        prob_good_sample,
+        maxIter);
 
     EXPECT_EQ(cv::Point2d(1,0), out_best_model) << unexpectedBestModel;
     EXPECT_EQ(12, out_best_inliers.size()) << unexpectedNumInliers;
@@ -165,15 +165,15 @@ TEST_F(LineFittingTest, ExecuteContaminated)
     const size_t maxIter = 2000;
 
     od::Ransac<cv::Point2d,cv::Point2d>::execute(
-           allData_const,
-           lf::LineFitFunctor,
-           lf::LineDistanceFunctor,
-           distanceThreshold,
-           minimumSizeSamplesToFit,
-           out_best_inliers,
-           out_best_model,
-           prob_good_sample,
-           maxIter);
+        allData_const,
+        lf::LineFitFunctor,
+        lf::LineDistanceFunctor,
+        distanceThreshold,
+        minimumSizeSamplesToFit,
+        out_best_inliers,
+        out_best_model,
+        prob_good_sample,
+        maxIter);
 
     EXPECT_EQ(cv::Point2d(1,0), out_best_model) << unexpectedBestModel;
     EXPECT_EQ(12, out_best_inliers.size()) << unexpectedNumInliers;

@@ -14,7 +14,7 @@ public:
         const bool isIterCriteria = true);
 
     void execute(
-        const std::list<cv::Point3f>* setPoints, 
+        const std::list<cv::Point3f>* setPoints,
         cv::Mat& foundCenter) const;
 
 private:

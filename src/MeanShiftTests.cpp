@@ -44,13 +44,13 @@ void FillData_NumerousPointsOnPlane(std::list<cv::Point3f>& setOfPoints)
 class MeanShiftTest : public ::testing::Test
 {
 protected:
-   void SetUp()
-   {
-       meanShift = new MeanShift3D(100, 0, cv::Point3f(4,4,0));
-   }
+    void SetUp()
+    {
+        meanShift = new MeanShift3D(100, 0, cv::Point3f(4,4,0));
+    }
 protected:
-   std::list<cv::Point3f> setOfPoints;
-   MeanShift3D* meanShift;
+    std::list<cv::Point3f> setOfPoints;
+    MeanShift3D* meanShift;
 };
 
 TEST_F(MeanShiftTest, Two2DPoints)

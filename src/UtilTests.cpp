@@ -10,21 +10,21 @@
 
 TEST(RandomGenerator, drawUniformVector)
 {
-	util::RandomGenerator rng;
-	const double min = 0.0;
-	const double max = 1.0;
+    util::RandomGenerator rng;
+    const double min = 0.0;
+    const double max = 1.0;
 
-	const size_t size = 5;
+    const size_t size = 5;
 
-	std::vector<double> vec(size);
+    std::vector<double> vec(size);
 
-	rng.drawUniformVector< std::vector<double> >(vec, min, max);
+    rng.drawUniformVector< std::vector<double> >(vec, min, max);
 
-	for(int i = 0; i < size; i++)
-	{
-		EXPECT_LE(vec[i], max);
-		EXPECT_GE(vec[i], min);
-	}
+    for(int i = 0; i < size; i++)
+    {
+        EXPECT_LE(vec[i], max);
+        EXPECT_GE(vec[i], min);
+    }
 }
 
 TEST(RandomGenerator, drawUniformSubset)
@@ -76,28 +76,28 @@ TEST(RandomGenerator, drawUniformSubset_K_of_N)
 
 TEST(RandomGenerator, drawUniformSubset_K_of_N_Unique)
 {
-	util::RandomGenerator rng;
-	int count = 0;
-	for(int i=0; i<100; i++)
-	{
-		std::vector<unsigned> subset1;
-		std::vector<unsigned> subset2;
+    util::RandomGenerator rng;
+    int count = 0;
+    for(int i=0; i<100; i++)
+    {
+        std::vector<unsigned> subset1;
+        std::vector<unsigned> subset2;
 
-		const size_t n = 20;
-		const size_t k = 7;
+        const size_t n = 20;
+        const size_t k = 7;
 
-		rng.drawUniformSubset(n, k, subset1);
-		rng.drawUniformSubset(n, k, subset2);
-	
-		int number = 0;
-		for(size_t i = 0; i < subset1.size(); i++)
-		{
-			if (subset1[i] == subset2[i])
-				number++;
-		}
+        rng.drawUniformSubset(n, k, subset1);
+        rng.drawUniformSubset(n, k, subset2);
 
-		if (number != subset1.size() - 1)
-			count++;
-	}
-	EXPECT_EQ(100, count) << "Subset aren't unique";
+        int number = 0;
+        for(size_t i = 0; i < subset1.size(); i++)
+        {
+            if (subset1[i] == subset2[i])
+                number++;
+        }
+
+        if (number != subset1.size() - 1)
+            count++;
+    }
+    EXPECT_EQ(100, count) << "Subset aren't unique";
 }

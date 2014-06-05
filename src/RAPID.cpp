@@ -25,18 +25,18 @@ using namespace cv;
 
 void help()
 {
-	cout << endl <<
-	"\
---------------------------------------------------------------------------\n\
-A Video Rate Object Tracker\n\
-Attitude and position determination of a known 3D object\n\
-Usage:\n\
-./RAPID VideoInfoXmlFile numberOfFirstFrame [-o]\n\
-\tVideoInfoXmlFile - XML or YAML file containing video and model information;\n\
-\tnumberOfFirstFrame - Tracking algorithm starts with a given frame in the video.\n\
-\t[-o] - (optional) if specified, logs will be enabled. \n\
---------------------------------------------------------------------------\n\
-	" << endl;
+    cout << endl <<
+        "\
+        --------------------------------------------------------------------------\n\
+        A Video Rate Object Tracker\n\
+        Attitude and position determination of a known 3D object\n\
+        Usage:\n\
+        ./RAPID VideoInfoXmlFile numberOfFirstFrame [-o]\n\
+        \tVideoInfoXmlFile - XML or YAML file containing video and model information;\n\
+        \tnumberOfFirstFrame - Tracking algorithm starts with a given frame in the video.\n\
+        \t[-o] - (optional) if specified, logs will be enabled. \n\
+        --------------------------------------------------------------------------\n\
+        " << endl;
 }
 
 // false if validation fails
@@ -87,32 +87,36 @@ int main(int argn, char* argv[])
     if (!EstimateInititalPose(movieFrame, Camera_Matrix, Distortion_Coefficients, rVec, tVec, patternOrigin3D))
     {
         cerr << endl << "Can't find the calibration pattern."<< endl
-             << " Troubleshooting: change numberOfFirstFrame or the input video" << endl;
+            << " Troubleshooting: change numberOfFirstFrame or the input video" << endl;
         help();
         return 1;
     }
 
-	const int PointsPerEdge = 100;
+    const int PointsPerEdge = 10;
     Model model(videoInfo.GetCornerPoints(), PointsPerEdge, Camera_Matrix, Distortion_Coefficients, rVec, tVec, isLogsEnabled);
 
-	int n = model.GetNumberControlPoints();
+    int n = model.GetNumberControlPoints();
 
     //RAPIDTracker tracker(model, isLogsEnabled);
-	//RAPIDTrackerExperiment_rand_subsets tracker(model, isLogsEnabled, 4, 100);
-	//RAPIDTrackerExperiment_all_k_subsets tracker(model, isLogsEnabled, 4);
+    //RAPIDTrackerExperiment_rand_subsets tracker(model, isLogsEnabled, 4, 100);
+    //RAPIDTrackerExperiment_all_k_subsets tracker(model, isLogsEnabled, 4);
 
     //CvRansacTracker tracker(model, isLogsEnabled, 10, 0.5, 1);
 
-    std::ofstream file,file_p;
+    std::ofstream file,file_p,file_c;
 
-	//CvRansacTracker tracker(model, isLogsEnabled, 100, 4, 300); // correct definition during the whole video (test_small_25.MOV)
-	//file.open ("../others/matlab_workspace/output/perfomance/r_perfomance.txt");
+    file_c.open ("../others/matlab_workspace/output/counts.txt");
+    file_c.close();
 
-    PseudoRansacTracker tracker(model, isLogsEnabled, cv::Point3f(0.2,0.2,0.2), cv::Point3f(20,20,40), 500, 0.01, 0.01, 100, 4);
-	file.open ("../others/matlab_workspace/output/perfomance/m_perfomance.txt");
-	/*file_p.open ("../others/matlab_workspace/output/precision/precision.txt");
-	file_p.close();
-*/
+#if 1
+    CvRansacTracker tracker(model, isLogsEnabled, 100, 4, 50); // correct definition during the whole video (test_small_25.MOV)
+    file.open ("../others/matlab_workspace/output/perfomance/r_perfomance.txt");
+#else
+    PseudoRansacTracker tracker(model, isLogsEnabled, cv::Point3f(0.1,0.1,0.2), cv::Point3f(10,10,20), 500, 0.01, 0.01, 60, 4);
+    file.open ("../others/matlab_workspace/output/perfomance/m_perfomance.txt");
+    file_p.open ("../others/matlab_workspace/output/precision/precision.txt");
+    file_p.close();
+#endif
 
     const std::string nextWindowName = "Next";
     const std::string currentWindowName = "Current";
@@ -120,55 +124,62 @@ int main(int argn, char* argv[])
     namedWindow(nextWindowName, CV_WINDOW_AUTOSIZE);
     namedWindow(currentWindowName, CV_WINDOW_AUTOSIZE);
 
-    const int iterationsThreshold = 13;
-	const double precisionFreshold = 1e-1;
+    const int iterationsThreshold = 4;
+    const double precisionFreshold = 0.2;
 
     cvflann::StartStopTimer timer;
     double timePerFrame, totalTime = 0;
 
-	while (cap.read(movieFrame))
-	{
-		double precision = DBL_MAX;
+    while (cap.read(movieFrame))
+    {
+        double precision = DBL_MAX;
         timePerFrame = 0;
-		timer.reset();
-        for(int i = 0; (precision > precisionFreshold) && ( i < iterationsThreshold); i++)
+        timer.reset();
+        int i;
+
+        std::ofstream file2;
+        file2.open ("../others/matlab_workspace/output/counts.txt", std::ios::app);
+        file2 << "-----------------" <<std::endl;
+        file2.close();
+
+        for(i = 0; (precision > precisionFreshold) && ( i < iterationsThreshold); i++)
         {
             Mat workFrame = movieFrame.clone();
 
-			tracker.SetExtraImage(workFrame);
+            tracker.SetExtraImage(workFrame);
 
-	        Mat prev = model.Outline(workFrame);
-	        imshow(currentWindowName, prev);
+            Mat prev = model.Outline(workFrame);
+            imshow(currentWindowName, prev);
 
-			Model prevModel = model;
+            Model prevModel = model;
 
             timer.start();
-	        model = tracker.ProcessFrame(workFrame);
+            model = tracker.ProcessFrame(workFrame);
             timer.stop();
             timePerFrame += timer.value;
 
-			precision = tracker.GetConvergenceMeasure(prevModel, model, NORM_INF);
+            precision = tracker.GetConvergenceMeasure(prevModel, model, NORM_INF);
 
-	        workFrame = model.Outline(workFrame);
-	        imshow(nextWindowName, workFrame);
+            workFrame = model.Outline(workFrame);
+            imshow(nextWindowName, workFrame);
 
             model.DrawReferencePoints(movieFrame, patternOrigin3D, cap.get(CV_CAP_PROP_POS_FRAMES), i);
-	        waitKey(1);
-		}
-		totalTime+=timePerFrame;
-        file <<  totalTime << endl;
-	}
+            waitKey(1);
+        }
+        totalTime+=timePerFrame;
+        file <<  totalTime << ",    "<<i<<endl;
+    }
     file.close();
 
-	return 0;
+    return 0;
 }
 
 bool EstimateInititalPose(const Mat& circlesImage,
-                                     const Mat& Camera_Matrix,
-                                     const Mat& Distortion_Coefficients,
-                                     Mat& rVector,
-                                     Mat& tVector,
-                                     Mat& patternOrigin3D)
+                          const Mat& Camera_Matrix,
+                          const Mat& Distortion_Coefficients,
+                          Mat& rVector,
+                          Mat& tVector,
+                          Mat& patternOrigin3D)
 {
     std::vector<Point2f> foundBoardCorners;
     std::vector<Point3f> boardPoints;
@@ -202,7 +213,7 @@ bool EstimateInititalPose(const Mat& circlesImage,
         //drawChessboardCorners( view, boardSize, Mat(foundBoardCorners), found );
         cout << "found circles Grid!" << endl;
         solvePnP(Mat(boardPoints), Mat(foundBoardCorners), Camera_Matrix,
-                     Distortion_Coefficients, rvec, tvec, false);
+            Distortion_Coefficients, rvec, tvec, false);
         cout << "Rotate vector" << endl << rvec << endl << "Translate vector=" << endl << tvec << endl;
     }
     else
@@ -234,9 +245,9 @@ bool ValidateAndInterpretePrameters(const int argn,
     {
         if (strcmp(argv[3], "-o"))
         {
-           help();
-           cerr << "Unknown option: " << argv[3] <<endl;
-           return false;
+            help();
+            cerr << "Unknown option: " << argv[3] <<endl;
+            return false;
         }
         else
         {
@@ -244,7 +255,6 @@ bool ValidateAndInterpretePrameters(const int argn,
         }
     }
 
-        
     firstFrame = atoi(argv[2]);
     std::string videoInfoXmlPath = argv[1];
 

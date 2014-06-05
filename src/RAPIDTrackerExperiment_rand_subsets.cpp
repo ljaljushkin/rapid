@@ -15,33 +15,32 @@ using namespace cv;
 unsigned int currCount = 0;
 
 RAPIDTrackerExperiment_rand_subsets::RAPIDTrackerExperiment_rand_subsets(
-	Model& _model, 
-	bool _isLogsEnabled, 
-	unsigned int _k,
-	unsigned int _count)
-	:	RAPIDTrackerExperiment(_model, _isLogsEnabled, _k), count(_count)
+    Model& _model,
+    bool _isLogsEnabled,
+    unsigned int _k,
+    unsigned int _count)
+    :	RAPIDTrackerExperiment(_model, _isLogsEnabled, _k), count(_count)
 {
-	rng = new util::RandomGenerator(time(NULL));
+    rng = new util::RandomGenerator(time(NULL));
 }
 
 RAPIDTrackerExperiment_rand_subsets::~RAPIDTrackerExperiment_rand_subsets()
 {}
 
 bool RAPIDTrackerExperiment_rand_subsets::GenerateNextSubset(
-	std::vector<unsigned>& out_subset, 
-	const unsigned int n) const
+    std::vector<unsigned>& out_subset,
+    const unsigned int n) const
 {
-	
-	(*rng).drawUniformSubset(n-1, k, out_subset);
+    (*rng).drawUniformSubset(n-1, k, out_subset);
 
-	currCount++;
-	if (currCount == count) 
-	{
-		currCount = 0;
-		return false;
-	}
-	else
-	{
-		return true;
-	}
+    currCount++;
+    if (currCount == count)
+    {
+        currCount = 0;
+        return false;
+    }
+    else
+    {
+        return true;
+    }
 }

@@ -27,16 +27,16 @@ using namespace cv;
 
 void help()
 {
-	cout << endl <<
-	"\
---------------------------------------------------------------------------\n\
-A Fake Movie Object Tracker\n\
-Attitude and position determination of a known 3D object\n\
-Usage:\n\
-./RAPIDTesting [-o]\n\
-\t[-o] - (optional) if specified, logs will be enabled. \n\
---------------------------------------------------------------------------\n\
-	" << endl;
+    cout << endl <<
+        "\
+        --------------------------------------------------------------------------\n\
+        A Fake Movie Object Tracker\n\
+        Attitude and position determination of a known 3D object\n\
+        Usage:\n\
+        ./RAPIDTesting [-o]\n\
+        \t[-o] - (optional) if specified, logs will be enabled. \n\
+        --------------------------------------------------------------------------\n\
+        " << endl;
 }
 
 class EdgeExtractorStub : virtual public EdgeExtractor
@@ -49,184 +49,184 @@ public:
 class RAPIDTestingTracker : public RAPIDTracker, protected EdgeExtractorStub
 {
 public:
-	RAPIDTestingTracker(
-		Model& _model, 
-		bool _isLogsEnabled)
-		:	RAPIDTracker(_model, _isLogsEnabled) { }
+    RAPIDTestingTracker(
+        Model& _model,
+        bool _isLogsEnabled)
+        :	RAPIDTracker(_model, _isLogsEnabled) { }
 };
 
 class RAPIDTestingTrackerExperiment_rand_subsets : public RAPIDTrackerExperiment_rand_subsets, protected EdgeExtractorStub
 {
 public:
-	RAPIDTestingTrackerExperiment_rand_subsets(
-		Model& _model, 
-		bool _isLogsEnabled,
-		unsigned int _k,
-		unsigned int _count)
-		:	RAPIDTrackerExperiment_rand_subsets(_model, _isLogsEnabled, _k, _count) { }
+    RAPIDTestingTrackerExperiment_rand_subsets(
+        Model& _model,
+        bool _isLogsEnabled,
+        unsigned int _k,
+        unsigned int _count)
+        :	RAPIDTrackerExperiment_rand_subsets(_model, _isLogsEnabled, _k, _count) { }
 };
 
 class RAPIDTestingTrackerExperiment_all_k_subsets : public RAPIDTrackerExperiment_all_k_subsets, protected EdgeExtractorStub
 {
 public:
-	RAPIDTestingTrackerExperiment_all_k_subsets(
-		Model& _model, 
-		bool _isLogsEnabled,
-		unsigned int _k)
-		:	RAPIDTrackerExperiment_all_k_subsets(_model, _isLogsEnabled, _k) { }
+    RAPIDTestingTrackerExperiment_all_k_subsets(
+        Model& _model,
+        bool _isLogsEnabled,
+        unsigned int _k)
+        :	RAPIDTrackerExperiment_all_k_subsets(_model, _isLogsEnabled, _k) { }
 };
 
 class CvRansacTestingTracker: public CvRansacTracker, protected EdgeExtractorStub
 {
 public:
-	CvRansacTestingTracker(
-		Model model, 
-		bool _isLogsEnabled, 
-		int iterationsCount, 
-		float reprojectionError,
-		int minInliersCount)
-		:	CvRansacTracker( model, _isLogsEnabled, iterationsCount, reprojectionError, minInliersCount) { }
+    CvRansacTestingTracker(
+        Model model,
+        bool _isLogsEnabled,
+        int iterationsCount,
+        float reprojectionError,
+        int minInliersCount)
+        :	CvRansacTracker( model, _isLogsEnabled, iterationsCount, reprojectionError, minInliersCount) { }
 };
 
 class RapidTestingModel : public Model
 {
 public:
-	RapidTestingModel() {}
-	RapidTestingModel(const cv::Mat* cornerPoints,
-		const int      pointsPerEdge,
-		const cv::Mat& cameraMatrix,
-		const cv::Mat& distortionCoefficients,
-		const cv::Mat& rotationVector,
-		const cv::Mat& translateVector,
+    RapidTestingModel() {}
+    RapidTestingModel(const cv::Mat* cornerPoints,
+        const int      pointsPerEdge,
+        const cv::Mat& cameraMatrix,
+        const cv::Mat& distortionCoefficients,
+        const cv::Mat& rotationVector,
+        const cv::Mat& translateVector,
         const bool isLogsEnabled)
-		: Model(cornerPoints, pointsPerEdge, cameraMatrix, distortionCoefficients, rotationVector, translateVector, isLogsEnabled)
-	{ }
-	RapidTestingModel(const RapidTestingModel& model) : Model(model) { }
-	RapidTestingModel(const Model& model) : Model(model) { }
+        : Model(cornerPoints, pointsPerEdge, cameraMatrix, distortionCoefficients, rotationVector, translateVector, isLogsEnabled)
+    { }
+    RapidTestingModel(const RapidTestingModel& model) : Model(model) { }
+    RapidTestingModel(const Model& model) : Model(model) { }
 
-	virtual void SetControlPoints()
-	{
-		// pointsPerEdge control point correspond to every edge
-		AddControlPointsFromTheEdge(1, 2);
-		AddControlPointsFromTheEdge(0, 1);
-		//AddControlPointsFromTheEdge(2, 3);
-		AddControlPointsFromTheEdge(0, 4);
+    virtual void SetControlPoints()
+    {
+        // pointsPerEdge control point correspond to every edge
+        AddControlPointsFromTheEdge(1, 2);
+        AddControlPointsFromTheEdge(0, 1);
+        //AddControlPointsFromTheEdge(2, 3);
+        AddControlPointsFromTheEdge(0, 4);
 
-		//AddControlPointsFromTheEdge(4, 5);
-		AddControlPointsFromTheEdge(5, 6);
-		//AddControlPointsFromTheEdge(6, 7);
-		AddControlPointsFromTheEdge(7, 4);
+        //AddControlPointsFromTheEdge(4, 5);
+        AddControlPointsFromTheEdge(5, 6);
+        //AddControlPointsFromTheEdge(6, 7);
+        AddControlPointsFromTheEdge(7, 4);
 
-		AddControlPointsFromTheEdge(0, 3);
-		AddControlPointsFromTheEdge(1, 5);
-		//AddControlPointsFromTheEdge(2, 6);
-		AddControlPointsFromTheEdge(3, 7);
-	}
+        AddControlPointsFromTheEdge(0, 3);
+        AddControlPointsFromTheEdge(1, 5);
+        //AddControlPointsFromTheEdge(2, 6);
+        AddControlPointsFromTheEdge(3, 7);
+    }
 };
 
 Model GetHardcodedModel(bool isLogsEnabled)
 {
-	const double a = 145.0;
-	const double b = 45.0;
-	const double c = 65.0;
+    const double a = 145.0;
+    const double b = 45.0;
+    const double c = 65.0;
 
     std::map <std::string, double> angle;
     angle["default"] = CV_PI/2 - acos(100/a);
     angle["north_east"] = CV_PI - acos(100/a);
 
-	const double alpha = angle["default"];
+    const double alpha = angle["default"];
 
-	const Mat rotationMatrix = (Mat_<double>(3,3) <<  cos(alpha), 0, sin(alpha),
-		0,          1, 0,
-		-sin(alpha), 0, cos(alpha));
+    const Mat rotationMatrix = (Mat_<double>(3,3) <<  cos(alpha), 0, sin(alpha),
+        0,          1, 0,
+        -sin(alpha), 0, cos(alpha));
 
-	const Mat cornerPoints[] = {
-		(Mat_<double>(1,3) << 0, 0, 0)*rotationMatrix,	// bottom anterior point on the left side
-		(Mat_<double>(1,3) << b, 0, 0)*rotationMatrix,	// bottom anterior point on the right side
-		(Mat_<double>(1,3) << b, 0, a)*rotationMatrix,	// bottom rear point on the right side
-		(Mat_<double>(1,3) << 0, 0, a)*rotationMatrix,	// bottom rear point on the left side
+    const Mat cornerPoints[] = {
+        (Mat_<double>(1,3) << 0, 0, 0)*rotationMatrix,	// bottom anterior point on the left side
+        (Mat_<double>(1,3) << b, 0, 0)*rotationMatrix,	// bottom anterior point on the right side
+        (Mat_<double>(1,3) << b, 0, a)*rotationMatrix,	// bottom rear point on the right side
+        (Mat_<double>(1,3) << 0, 0, a)*rotationMatrix,	// bottom rear point on the left side
 
-		(Mat_<double>(1,3) << 0, -c, 0)*rotationMatrix,	// top anterior point on the left side
-		(Mat_<double>(1,3) << b, -c, 0)*rotationMatrix,	// top anterior point on the right side
-		(Mat_<double>(1,3) << b, -c, a)*rotationMatrix,	// top rear point on the right side
-		(Mat_<double>(1,3) << 0, -c, a)*rotationMatrix,	// top rear point on the left side
-	};
+        (Mat_<double>(1,3) << 0, -c, 0)*rotationMatrix,	// top anterior point on the left side
+        (Mat_<double>(1,3) << b, -c, 0)*rotationMatrix,	// top anterior point on the right side
+        (Mat_<double>(1,3) << b, -c, a)*rotationMatrix,	// top rear point on the right side
+        (Mat_<double>(1,3) << 0, -c, a)*rotationMatrix,	// top rear point on the left side
+    };
 
-	const int pointsPerEdge = 5;
-	const Mat cameraMatrix = (Mat_<double>(3,3)	<<
-		679.3132512424555, 0, 319.5,
-		0, 679.5002034640837, 239.5,
-		0, 0, 1);
-	const Mat distortionCoefficients =  Mat::zeros(5, 1, CV_64F);
-	const Mat rotationVector = Mat::zeros(3, 1, CV_64F);
+    const int pointsPerEdge = 5;
+    const Mat cameraMatrix = (Mat_<double>(3,3)	<<
+        679.3132512424555, 0, 319.5,
+        0, 679.5002034640837, 239.5,
+        0, 0, 1);
+    const Mat distortionCoefficients =  Mat::zeros(5, 1, CV_64F);
+    const Mat rotationVector = Mat::zeros(3, 1, CV_64F);
 
     std::map <std::string, Mat> tVec;
     tVec["default"] = (Mat_<double>(3,1) << -18, 30, 200);
     tVec["north_east"] = (Mat_<double>(3,1) << 90, 10, 300);
 
-	const Mat translateVector = tVec["default"];
+    const Mat translateVector = tVec["default"];
 
-	Model model(cornerPoints, pointsPerEdge, cameraMatrix, distortionCoefficients, rotationVector, translateVector, isLogsEnabled);
+    Model model(cornerPoints, pointsPerEdge, cameraMatrix, distortionCoefficients, rotationVector, translateVector, isLogsEnabled);
 
-	return model;
+    return model;
 }
 
 class FakeMovie
 {
 public:
-	~FakeMovie() {}
-	// filmScenario is a list of a vectors-solutions (angles|translation)
-	FakeMovie(std::list<Mat> filmScenario, Model initialModelState, int height, int width)
-	{
-		Mat initialFrame = initialModelState.Outline(GetBlackFrame(height, width), false);
-		movie.push_back(initialFrame);
-		Model currentModelState = initialModelState;
+    ~FakeMovie() {}
+    // filmScenario is a list of a vectors-solutions (angles|translation)
+    FakeMovie(std::list<Mat> filmScenario, Model initialModelState, int height, int width)
+    {
+        Mat initialFrame = initialModelState.Outline(GetBlackFrame(height, width), false);
+        movie.push_back(initialFrame);
+        Model currentModelState = initialModelState;
 
-		std::list<Mat>::iterator scenarioIterator = filmScenario.begin();
-		while (scenarioIterator != filmScenario.end())
-		{
-			currentModelState.updatePose(*scenarioIterator);
-			movie.push_back(currentModelState.Outline(GetBlackFrame(height, width), false));
-			scenarioIterator++;
-		}
+        std::list<Mat>::iterator scenarioIterator = filmScenario.begin();
+        while (scenarioIterator != filmScenario.end())
+        {
+            currentModelState.updatePose(*scenarioIterator);
+            movie.push_back(currentModelState.Outline(GetBlackFrame(height, width), false));
+            scenarioIterator++;
+        }
 
-		movieIterator = movie.begin();
-	}
-	// false when there's no next frame
-	bool ReadNextFrame(Mat& destination)
-	{
-		if (movieIterator == movie.end())
-			return false;
-		destination = *movieIterator;
-		movieIterator++;
-		return true;
-	}
-	void RewindToTheStart()
-	{
-		movieIterator = movie.begin();
-	}
-	void Play()
-	{
-		const std::string fakeMovieWindow = "Fake movie";
+        movieIterator = movie.begin();
+    }
+    // false when there's no next frame
+    bool ReadNextFrame(Mat& destination)
+    {
+        if (movieIterator == movie.end())
+            return false;
+        destination = *movieIterator;
+        movieIterator++;
+        return true;
+    }
+    void RewindToTheStart()
+    {
+        movieIterator = movie.begin();
+    }
+    void Play()
+    {
+        const std::string fakeMovieWindow = "Fake movie";
 
-		namedWindow(fakeMovieWindow, CV_WINDOW_AUTOSIZE);
+        namedWindow(fakeMovieWindow, CV_WINDOW_AUTOSIZE);
 
-		std::list<Mat>::iterator movieIterator = movie.begin();
-		while(movieIterator != movie.end())
-		{
-			imshow(fakeMovieWindow, *movieIterator);
-			waitKey();
-			movieIterator++;
-		}
-	}
+        std::list<Mat>::iterator movieIterator = movie.begin();
+        while(movieIterator != movie.end())
+        {
+            imshow(fakeMovieWindow, *movieIterator);
+            waitKey();
+            movieIterator++;
+        }
+    }
 private:
-	std::list<Mat> movie;
-	std::list<Mat>::iterator movieIterator;
+    std::list<Mat> movie;
+    std::list<Mat>::iterator movieIterator;
 private:
-	Mat GetBlackFrame(int height, int width)
-	{
-		return Mat::zeros(height, width, CV_8UC3);
-	}
+    Mat GetBlackFrame(int height, int width)
+    {
+        return Mat::zeros(height, width, CV_8UC3);
+    }
 };
 
 int main(int argn, char* argv[])
@@ -237,8 +237,8 @@ int main(int argn, char* argv[])
     {
         if (strcmp(argv[1], "-o"))
         {
-           help();
-           cerr << "Unknown option: " << argv[1] <<endl;
+            help();
+            cerr << "Unknown option: " << argv[1] <<endl;
         }
         else
         {
@@ -246,12 +246,12 @@ int main(int argn, char* argv[])
         }
     }
 
-	/// Windows names
-	const std::string currentWindowName = "Current";
-	const std::string nextWindowName = "Next";
+    /// Windows names
+    const std::string currentWindowName = "Current";
+    const std::string nextWindowName = "Next";
 
-	const int VideoHeight = 480;
-	const int VideoWidth = 640;
+    const int VideoHeight = 480;
+    const int VideoWidth = 640;
 
     std::map <std::string, Mat> movementVector6D;
     movementVector6D["default"]              = (Mat_<double>(6,1) << 0.001, 0.002, 0.003, 0.1, 0.1, 0.1);
@@ -259,33 +259,33 @@ int main(int argn, char* argv[])
     movementVector6D["smallTranslate"]       = (Mat_<double>(6,1) << 0, 0, 0, 0.1, 0.1, -0.1);
     movementVector6D["mediumTranslate"]      = (Mat_<double>(6,1) << 0, 0, 0, -0.8, 0.8, -0.8);
     movementVector6D["oneDirectionRotateZ"]  = (Mat_<double>(6,1) << 0, 0, CV_PI/56, 0.0, 0.0, 0.0);
-        // SolvePnp and RansacSolvePnp don't cope with the oneDirectionRotateY and oneDirectionRotateX
-        // bad for both tVec: north_east and default
+    // SolvePnp and RansacSolvePnp don't cope with the oneDirectionRotateY and oneDirectionRotateX
+    // bad for both tVec: north_east and default
     movementVector6D["oneDirectionRotateY"]  = (Mat_<double>(6,1) << 0, CV_PI/56, 0, 0.0, 0.0, 0.0);
     movementVector6D["oneDirectionRotateX"]  = (Mat_<double>(6,1) << CV_PI/56, 0, 0, 0.0, 0.0, 0.0);
     movementVector6D["oneDirectionRotateZs"] = (Mat_<double>(6,1) << 0, 0, CV_PI/120, 0.0, 0.0, 0.0);
 
-	Model model = (RapidTestingModel) GetHardcodedModel(isLogsEnabled);
+    Model model = (RapidTestingModel) GetHardcodedModel(isLogsEnabled);
 
-	std::list<Mat> fakeMovieScenario;
+    std::list<Mat> fakeMovieScenario;
 
     for(int i=0;i<1000;i++)
     {
-		//fakeMovieScenario.push_back(movementVector6D["oneDirectionRotateZs"]);
-            // interesting to see, robustness! some control points are shown, then are disappeared, then are shown and are disappeared again.
-            // but works good with SolvePnP and RansacSolvePnP
-            // with tVec["default"];
+        //fakeMovieScenario.push_back(movementVector6D["oneDirectionRotateZs"]);
+        // interesting to see, robustness! some control points are shown, then are disappeared, then are shown and are disappeared again.
+        // but works good with SolvePnP and RansacSolvePnP
+        // with tVec["default"];
         fakeMovieScenario.push_back(movementVector6D["oneDirectionRotateZs"]);
     }
 
-	FakeMovie movie(fakeMovieScenario, GetHardcodedModel(isLogsEnabled), VideoHeight, VideoWidth);
-	//movie.Play();
+    FakeMovie movie(fakeMovieScenario, GetHardcodedModel(isLogsEnabled), VideoHeight, VideoWidth);
+    //movie.Play();
 
-	int n = model.GetNumberControlPoints();
+    int n = model.GetNumberControlPoints();
 
     //RAPIDTestingTracker tracker(model, isLogsEnabled);
     //RAPIDTestingTrackerExperiment_rand_subsets tracker(model, isLogsEnabled, n, n/2);
-	//RAPIDTestingTrackerExperiment_all_k_subsets tracker(model, isLogsEnabled, 4);
+    //RAPIDTestingTrackerExperiment_all_k_subsets tracker(model, isLogsEnabled, 4);
 
     //CvRansacTracker tracker(model, isLogsEnabled, 10, 0.5, 1); // crash occurs on 2 frame
     //CvRansacTracker tracker(model, isLogsEnabled, 10, 8, 10); // crash occurs on 6 frame
@@ -308,7 +308,7 @@ int main(int argn, char* argv[])
     Scalar blueColor = Scalar(255, 0, 0);
 
     const int iterationsThreshold = 12;
-	const double precisionFreshold = 1e-1;
+    const double precisionFreshold = 1e-1;
 
     while(movie.ReadNextFrame(movieFrame))
     {
@@ -321,21 +321,21 @@ int main(int argn, char* argv[])
             Mat workFrame = movieFrame.clone();
 
             Mat prev = model.Outline(workFrame, true, blueColor);
-	        imshow(currentWindowName, prev);
+            imshow(currentWindowName, prev);
 
-			Model prevModel = model;
+            Model prevModel = model;
             model = tracker.ProcessFrame(workFrame);
 
-			precision = tracker.GetConvergenceMeasure(prevModel, model, NORM_INF);
+            precision = tracker.GetConvergenceMeasure(prevModel, model, NORM_INF);
 
-	        workFrame = model.Outline(workFrame, true, blueColor);
+            workFrame = model.Outline(workFrame, true, blueColor);
             imshow(nextWindowName, workFrame);
 
             Mat temp = Mat::zeros(3, 1, CV_64F);//Fake point of pattern
             model.DrawReferencePoints(movieFrame, temp, frameNumber, i);
-	        waitKey(1);
+            waitKey(1);
         }
     }
 
-	return 0;
+    return 0;
 }

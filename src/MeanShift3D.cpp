@@ -13,9 +13,9 @@ MeanShift3D::MeanShift3D(
     const cv::Point3f _windowSizes,
     const bool _isIterCriteria)
     :   maxIter(_maxIter),
-        eps(_eps),
-        windowSizes(_windowSizes),
-        isIterCriteria(_isIterCriteria)
+    eps(_eps),
+    windowSizes(_windowSizes),
+    isIterCriteria(_isIterCriteria)
 {}
 
 void MeanShift3D::execute(
@@ -28,7 +28,7 @@ void MeanShift3D::execute(
     float dz = windowSizes.z/2;
 
     std::list<Point3f>::const_iterator setOfPointsIter = setOfPoints->begin();
-    /*cout<<*setOfPointsIter<<std::endl;*/
+    //cout<<*setOfPointsIter<<std::endl;
 
     //Point3f center(*setOfPointsIter);
     Point3f center(0,0,0);

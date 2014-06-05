@@ -24,31 +24,31 @@ public:
         const double _ms_epsR = DistanceThreshold,
         const double _ms_epsT = DistanceThreshold,
         const int sp_iter = Max_Iter,
-		const float sp_reprojectionError = ReprojectionError
+        const float sp_reprojectionError = ReprojectionError
         );
 
     virtual void RunSolvePnP(
         const std::vector<cv::Point2f> foundBoxPoints2D,
         const std::vector<cv::Point3f> modelPoints3D,
         cv::Mat& out_rvec,
-        cv::Mat& out_tvec) const;  
+        cv::Mat& out_tvec) const;
 
 private:
-	virtual void  OutputRvecAndTvec(
-		const cv::Mat& out_rvec,
-		const cv::Mat& out_tvec,
-		std::ofstream& file) const;
+    virtual void  OutputRvecAndTvec(
+        const cv::Mat& out_rvec,
+        const cv::Mat& out_tvec,
+        std::ofstream& file) const;
 
-	virtual void FindInliers(
-		const std::vector<cv::Point2f> foundBoxPoints2D,
-		const std::list<cv::Point2d> projectedPoints,
-		const float reprojectionError,
-		std::vector<unsigned>& out_subset,
-		double& out_sum_norm) const;
+    virtual void FindInliers(
+        const std::vector<cv::Point2f> foundBoxPoints2D,
+        const std::list<cv::Point2d> projectedPoints,
+        const float reprojectionError,
+        std::vector<unsigned>& out_subset,
+        double& out_sum_norm) const;
 private:
     int iter;
-	float reprojectionError;
+    float reprojectionError;
     MeanShift3D* meanShift3DRotate;
     MeanShift3D* meanShift3DTranslate;
-	util::RandomGenerator* rng;
+    util::RandomGenerator* rng;
 };

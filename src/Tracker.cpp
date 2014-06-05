@@ -46,10 +46,10 @@ double Tracker::GetConvergenceMeasure(const Model& model1, const Model& model2, 
 }
 
 bool Tracker::FindPoints(Point2d controlPoint,
-    Point2d companionPoint,
-    const Mat& edges,
-    Point2d& foundPoint,
-    Point2d& foundPoint2)
+                         Point2d companionPoint,
+                         const Mat& edges,
+                         Point2d& foundPoint,
+                         Point2d& foundPoint2)
 {
     double kx=1/model.cameraMatrix.at<double>(0,0);
     double ky=1/model.cameraMatrix.at<double>(1,1);

@@ -19,17 +19,17 @@ Model::Model(const Mat* _cornerPoints,
              const Mat& _translateVector,
              const bool _isLogsEnabled)
 {
-	for(int i = 0; i < 8; i++)
-		cornerPoints.push_back(_cornerPoints[i].clone());
+    for(int i = 0; i < 8; i++)
+        cornerPoints.push_back(_cornerPoints[i].clone());
 
-	cameraMatrix = _cameraMatrix.clone();
-	distortionCoefficients = _distortionCoefficients.clone();
+    cameraMatrix = _cameraMatrix.clone();
+    distortionCoefficients = _distortionCoefficients.clone();
 
-	pointsPerEdge   = _pointsPerEdge;
+    pointsPerEdge   = _pointsPerEdge;
     rotationVector  = _rotationVector;
     translateVector = _translateVector;
 
-	SetControlPoints();
+    SetControlPoints();
     isLogsEnabled = _isLogsEnabled;
 }
 
@@ -41,17 +41,17 @@ Model::Model(const std::vector<Mat> _cornerPoints,
              const Mat& _translateVector,
              const bool _isLogsEnabled)
 {
-	for(unsigned int i = 0; i < _cornerPoints.size(); i++)
-		cornerPoints.push_back(_cornerPoints[i].clone());
+    for(unsigned int i = 0; i < _cornerPoints.size(); i++)
+        cornerPoints.push_back(_cornerPoints[i].clone());
 
-	cameraMatrix = _cameraMatrix.clone();
-	distortionCoefficients = _distortionCoefficients.clone();
+    cameraMatrix = _cameraMatrix.clone();
+    distortionCoefficients = _distortionCoefficients.clone();
 
-	pointsPerEdge   = _pointsPerEdge;
+    pointsPerEdge   = _pointsPerEdge;
     rotationVector  = _rotationVector;
     translateVector = _translateVector;
 
-	SetControlPoints();
+    SetControlPoints();
 
     isLogsEnabled = _isLogsEnabled;
 }
@@ -63,7 +63,7 @@ Model::Model(const Model& model)
         while (cornerPointsIterSrc != model.cornerPoints.end())
         {
             this->cornerPoints.push_back((*cornerPointsIterSrc).clone());
-	        cornerPointsIterSrc++;
+            cornerPointsIterSrc++;
         }
     }
 
@@ -72,7 +72,7 @@ Model::Model(const Model& model)
         while (controlPointsIterSrc != model.controlPoints.end())
         {
             this->controlPoints.push_back((*controlPointsIterSrc).clone());
-	        controlPointsIterSrc++;
+            controlPointsIterSrc++;
         }
     }
 
@@ -81,7 +81,7 @@ Model::Model(const Model& model)
         while (companionPointsIterSrc != model.companionPoints.end())
         {
             this->companionPoints.push_back((*companionPointsIterSrc).clone());
-	        companionPointsIterSrc++;
+            companionPointsIterSrc++;
         }
     }
 
@@ -95,26 +95,26 @@ Model::Model(const Model& model)
 
 Model::~Model()
 {
-	std::list<Mat>::iterator controlPointsIter = controlPoints.begin();
-	while (controlPointsIter != controlPoints.end())
-	{
-		controlPointsIter->release();
-		controlPointsIter++;
-	}
+    std::list<Mat>::iterator controlPointsIter = controlPoints.begin();
+    while (controlPointsIter != controlPoints.end())
+    {
+        controlPointsIter->release();
+        controlPointsIter++;
+    }
 
-	std::list<Mat>::iterator companionPointsIter = companionPoints.begin();
-	while (companionPointsIter != companionPoints.end())
-	{
-		companionPointsIter->release();
-		companionPointsIter++;
-	}
+    std::list<Mat>::iterator companionPointsIter = companionPoints.begin();
+    while (companionPointsIter != companionPoints.end())
+    {
+        companionPointsIter->release();
+        companionPointsIter++;
+    }
 
-	std::vector<Mat>::iterator cornerPointsIter = cornerPoints.begin();
-	while (cornerPointsIter != cornerPoints.end())
-	{
-		cornerPointsIter->release();
-		cornerPointsIter++;
-	}
+    std::vector<Mat>::iterator cornerPointsIter = cornerPoints.begin();
+    while (cornerPointsIter != cornerPoints.end())
+    {
+        cornerPointsIter->release();
+        cornerPointsIter++;
+    }
 }
 
 // Manual projecting based on camera calibrating data.
@@ -127,24 +127,24 @@ Point2d Model::ManualProject(const Mat& _3DPoint) const
     Box3DPoint = rotationMatrix * Box3DPoint.t() + translateVector;
 
     double x = Box3DPoint.at<double>(0,0) / Box3DPoint.at<double>(2,0);
-	double y = Box3DPoint.at<double>(1,0) / Box3DPoint.at<double>(2,0);
+    double y = Box3DPoint.at<double>(1,0) / Box3DPoint.at<double>(2,0);
 
-	double rQuad = x*x+y*y;
+    double rQuad = x*x+y*y;
 
-	double x1 = x*(1+distortionCoefficients.at<double>(0,0)*rQuad+distortionCoefficients.at<double>(1,0)*rQuad*rQuad + distortionCoefficients.at<double>(4,0)*rQuad*rQuad*rQuad);
-	double y1 = y*(1+distortionCoefficients.at<double>(0,0)*rQuad+distortionCoefficients.at<double>(1,0)*rQuad*rQuad + distortionCoefficients.at<double>(4,0)*rQuad*rQuad*rQuad);
+    double x1 = x*(1+distortionCoefficients.at<double>(0,0)*rQuad+distortionCoefficients.at<double>(1,0)*rQuad*rQuad + distortionCoefficients.at<double>(4,0)*rQuad*rQuad*rQuad);
+    double y1 = y*(1+distortionCoefficients.at<double>(0,0)*rQuad+distortionCoefficients.at<double>(1,0)*rQuad*rQuad + distortionCoefficients.at<double>(4,0)*rQuad*rQuad*rQuad);
 
-	double u = x1*cameraMatrix.at<double>(0,0) + cameraMatrix.at<double>(0,2);
-	double v = y1*cameraMatrix.at<double>(1,1) + cameraMatrix.at<double>(1,2);
+    double u = x1*cameraMatrix.at<double>(0,0) + cameraMatrix.at<double>(0,2);
+    double v = y1*cameraMatrix.at<double>(1,1) + cameraMatrix.at<double>(1,2);
 
-	return Point2d(u,v);
+    return Point2d(u,v);
 }
 
 // Projecting using OpenCV function
 Point2d Model::Project(const Mat& _3DPoint) const
 {
-	std::vector<Point2d> projectedPoints;
-	projectPoints(_3DPoint, rotationVector, translateVector, cameraMatrix, distortionCoefficients, projectedPoints);
+    std::vector<Point2d> projectedPoints;
+    projectPoints(_3DPoint, rotationVector, translateVector, cameraMatrix, distortionCoefficients, projectedPoints);
     return projectedPoints[0];
 }
 
@@ -177,122 +177,121 @@ void Model::DrawReferencePoints(const Mat& source, Mat& patternOrigin3D, int num
     namedWindow("DrawReferencePoints", CV_WINDOW_AUTOSIZE);
     imshow("DrawReferencePoints", view);
 
-    if (isLogsEnabled) 
+    if (isLogsEnabled)
     {
         cout << "Coordinates of box's reference point in camera coordinates" << endl << translateVector << endl;
     }
 }
 
 Mat Model::Outline(const Mat&   source,
-                       const bool       isDrawControlPoints,
-                       const Scalar color,
-                       const bool       isDrawCompanionPoints)
+                   const bool       isDrawControlPoints,
+                   const Scalar color,
+                   const bool       isDrawCompanionPoints)
 {
-	Mat result = source.clone();
+    Mat result = source.clone();
 
-	// drawing edges
-	line(result, Project(cornerPoints[0]), Project(cornerPoints[1]), color, 1, 8);
-	line(result, Project(cornerPoints[1]), Project(cornerPoints[2]), color, 1, 8);
- 	line(result, Project(cornerPoints[2]), Project(cornerPoints[3]), color, 1, 8);
-	line(result, Project(cornerPoints[0]), Project(cornerPoints[4]), color, 1, 8);
+    // drawing edges
+    line(result, Project(cornerPoints[0]), Project(cornerPoints[1]), color, 1, 8);
+    line(result, Project(cornerPoints[1]), Project(cornerPoints[2]), color, 1, 8);
+    line(result, Project(cornerPoints[2]), Project(cornerPoints[3]), color, 1, 8);
+    line(result, Project(cornerPoints[0]), Project(cornerPoints[4]), color, 1, 8);
 
- 	line(result, Project(cornerPoints[4]), Project(cornerPoints[5]), color, 1, 8);
- 	line(result, Project(cornerPoints[5]), Project(cornerPoints[6]), color, 1, 8);
-	line(result, Project(cornerPoints[6]), Project(cornerPoints[7]), color, 1, 8);
-	line(result, Project(cornerPoints[7]), Project(cornerPoints[4]), color, 1, 8);
+    line(result, Project(cornerPoints[4]), Project(cornerPoints[5]), color, 1, 8);
+    line(result, Project(cornerPoints[5]), Project(cornerPoints[6]), color, 1, 8);
+    line(result, Project(cornerPoints[6]), Project(cornerPoints[7]), color, 1, 8);
+    line(result, Project(cornerPoints[7]), Project(cornerPoints[4]), color, 1, 8);
 
- 	line(result, Project(cornerPoints[0]), Project(cornerPoints[3]), color, 1, 8);
-	line(result, Project(cornerPoints[1]), Project(cornerPoints[5]), color, 1, 8);
-	line(result, Project(cornerPoints[2]), Project(cornerPoints[6]), color, 1, 8);
-	line(result, Project(cornerPoints[3]), Project(cornerPoints[7]), color, 1, 8);
-
+    line(result, Project(cornerPoints[0]), Project(cornerPoints[3]), color, 1, 8);
+    line(result, Project(cornerPoints[1]), Project(cornerPoints[5]), color, 1, 8);
+    line(result, Project(cornerPoints[2]), Project(cornerPoints[6]), color, 1, 8);
+    line(result, Project(cornerPoints[3]), Project(cornerPoints[7]), color, 1, 8);
 
     if (isDrawControlPoints)
     {
-	    std::list<Mat>::iterator controlPointsIter = controlPoints.begin();
-	    while (controlPointsIter != controlPoints.end())
-	    {
-		    circle(result, Project(*controlPointsIter), 4, color);
-		    controlPointsIter++;
-	    }
+        std::list<Mat>::iterator controlPointsIter = controlPoints.begin();
+        while (controlPointsIter != controlPoints.end())
+        {
+            circle(result, Project(*controlPointsIter), 4, color);
+            controlPointsIter++;
+        }
     }
 
     if (isDrawCompanionPoints)
-	{
- 	    std::list<Mat>::iterator companionPointsIter = companionPoints.begin();
- 	    while (companionPointsIter != companionPoints.end())
- 	    {
- 		    circle(result, Project(*companionPointsIter), 5, Scalar(0,255,0) );
- 		    companionPointsIter++;
- 	    }
+    {
+        std::list<Mat>::iterator companionPointsIter = companionPoints.begin();
+        while (companionPointsIter != companionPoints.end())
+        {
+            circle(result, Project(*companionPointsIter), 5, Scalar(0,255,0) );
+            companionPointsIter++;
+        }
     }
 
-	return result;
+    return result;
 }
 
 // adds control points located on i-j edge
 void Model::AddControlPointsFromTheEdge(int i, int j)
 {
     const double offset = 0.15;
-	const double companionPointsOffset = 0.3;
+    const double companionPointsOffset = 0.3;
 
-	const Mat direction = cornerPoints[j] - cornerPoints[i];
+    const Mat direction = cornerPoints[j] - cornerPoints[i];
 
     Mat p, s;
 
     p = cornerPoints[i] + direction*offset;
     controlPoints.push_back(p);
-	p.release();
+    p.release();
 
-	s = cornerPoints[i] + direction*companionPointsOffset*2;
-	companionPoints.push_back(s);
-	s.release();
+    s = cornerPoints[i] + direction*companionPointsOffset*2;
+    companionPoints.push_back(s);
+    s.release();
 
     p = cornerPoints[i] + direction*(1 - offset);
     controlPoints.push_back(p);
-	p.release();
+    p.release();
 
-	s = cornerPoints[i] + direction*(1-companionPointsOffset*2);
-	companionPoints.push_back(s);
-	s.release();
+    s = cornerPoints[i] + direction*(1-companionPointsOffset*2);
+    companionPoints.push_back(s);
+    s.release();
 
     for (int k = 1; k < pointsPerEdge-1; k++)
-	{
-		p = cornerPoints[i] + direction*(k / (double) (pointsPerEdge-1));
-		controlPoints.push_back(p);
-		p.release();
+    {
+        p = cornerPoints[i] + direction*(k / (double) (pointsPerEdge-1));
+        controlPoints.push_back(p);
+        p.release();
 
-		s = cornerPoints[i] + direction*(k / (double) (pointsPerEdge-1) + companionPointsOffset);
-		companionPoints.push_back(s);
-		s.release();
-	}
+        s = cornerPoints[i] + direction*(k / (double) (pointsPerEdge-1) + companionPointsOffset);
+        companionPoints.push_back(s);
+        s.release();
+    }
 }
 
 void Model::SetControlPoints()
 {
-	// pointsPerEdge control point correspond to every edge
-	//AddControlPointsFromTheEdge(1, 2);
-	AddControlPointsFromTheEdge(0, 1);
- 	//AddControlPointsFromTheEdge(2, 3);
-	AddControlPointsFromTheEdge(0, 4);
+    // pointsPerEdge control point correspond to every edge
+    //AddControlPointsFromTheEdge(1, 2);
+    AddControlPointsFromTheEdge(0, 1);
+    //AddControlPointsFromTheEdge(2, 3);
+    AddControlPointsFromTheEdge(0, 4);
 
-	//AddControlPointsFromTheEdge(4, 5);
-	AddControlPointsFromTheEdge(5, 6);
-	//AddControlPointsFromTheEdge(6, 7);
-	AddControlPointsFromTheEdge(7, 4);
+    //AddControlPointsFromTheEdge(4, 5);
+    AddControlPointsFromTheEdge(5, 6);
+    //AddControlPointsFromTheEdge(6, 7);
+    AddControlPointsFromTheEdge(7, 4);
 
-	AddControlPointsFromTheEdge(0, 3);
-	AddControlPointsFromTheEdge(1, 5);
-	//AddControlPointsFromTheEdge(2, 6);
-	AddControlPointsFromTheEdge(3, 7);
+    AddControlPointsFromTheEdge(0, 3);
+    AddControlPointsFromTheEdge(1, 5);
+    //AddControlPointsFromTheEdge(2, 6);
+    AddControlPointsFromTheEdge(3, 7);
 }
 
 void Model::updatePose(const Mat &solution)
 {
-	Mat angle = Mat(solution, Range(0,3), Range(0,1));
-	Mat distance = Mat(solution, Range(3,6), Range(0,1));
+    Mat angle = Mat(solution, Range(0,3), Range(0,1));
+    Mat distance = Mat(solution, Range(3,6), Range(0,1));
 
-	updatePose(angle, distance);
+    updatePose(angle, distance);
 }
 
 void Model::updatePose(const Mat& angle, const Mat& distance)
@@ -303,16 +302,16 @@ void Model::updatePose(const Mat& angle, const Mat& distance)
 
 std::list<Point2d> Model::GetProjectedControlPoints() const
 {
-	std::list<Point2d> projectedPoints;
+    std::list<Point2d> projectedPoints;
 
-	for(std::list<Mat>::const_iterator controlPointsIter = controlPoints.begin();
-		controlPointsIter != controlPoints.end();
-		controlPointsIter++)
-	{
-		projectedPoints.push_back(Project(*controlPointsIter));
-	}
+    for(std::list<Mat>::const_iterator controlPointsIter = controlPoints.begin();
+        controlPointsIter != controlPoints.end();
+        controlPointsIter++)
+    {
+        projectedPoints.push_back(Project(*controlPointsIter));
+    }
 
-	return projectedPoints;
+    return projectedPoints;
 }
 
 //std::vector<Point2f> Model::GetProjectedControlPointsVector() const

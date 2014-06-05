@@ -26,7 +26,7 @@ public:
     }
     double GetConvergenceMeasure(const Model& model1, const Model& model2, int normType) const;
 
-	virtual cv::Mat	ExtractEdges(const cv::Mat& image) const;
+    virtual cv::Mat	ExtractEdges(const cv::Mat& image) const;
 
     virtual void GetAndDrawPointsForSolvePnP(
         const cv::Mat& frame,
@@ -41,10 +41,10 @@ public:
 
     virtual Model ProcessFrame(const cv::Mat& frame);
 
-	virtual void SetExtraImage(const cv::Mat& _extraImage) 
-	{
-		extraImage = _extraImage.clone();
-	}
+    virtual void SetExtraImage(const cv::Mat& _extraImage)
+    {
+        extraImage = _extraImage.clone();
+    }
 protected:
     bool FindPoints(cv::Point2d controlPoint,
         cv::Point2d companionPoint,
@@ -52,7 +52,7 @@ protected:
         cv::Point2d& foundPoint,
         cv::Point2d& foundPoint2);
 protected:
-	Model model;
+    Model model;
     bool isLogsEnabled;
-	cv::Mat extraImage;
+    cv::Mat extraImage;
 };

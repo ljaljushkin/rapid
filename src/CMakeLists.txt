@@ -18,6 +18,7 @@ set( CORE_HEADERS_LIB
 	VideoInfoBase.hpp
 	Util.hpp
 	Tracker.hpp
+    MyPnPSolver.hpp
     PseudoRansacTracker.hpp
 	MeanShift3D.hpp
     CvRansacTracker.hpp

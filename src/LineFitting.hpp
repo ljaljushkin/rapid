@@ -3,116 +3,116 @@
 #include <opencv2/core/core.hpp>
 
 /** lf stands for Line Fitting
- */
+*/
 namespace lf
 {
-void FillAlmostUncontaminatedData(std::vector<cv::Point2d> &allData)
-{
-    allData.push_back(cv::Point2d(0,0));
-    allData.push_back(cv::Point2d(1,1));
-    allData.push_back(cv::Point2d(2,2));
-    allData.push_back(cv::Point2d(3,3));
-    allData.push_back(cv::Point2d(4,4));
-    allData.push_back(cv::Point2d(5,5));
-
-    allData.push_back(cv::Point2d(9,9));
-    allData.push_back(cv::Point2d(10,10));
-    allData.push_back(cv::Point2d(-2,-2));
-    allData.push_back(cv::Point2d(-3,-3));
-    allData.push_back(cv::Point2d(-5,-5));
-    allData.push_back(cv::Point2d(-4,-4));
-
-    // outliers
-    allData.push_back(cv::Point2d(-10,10));
-    allData.push_back(cv::Point2d(10,-10));
-}
-
-//TODO: to implemenent random generator of outliers at the square [ -10,-10; 10,10]
-void AddOutliers(std::vector<cv::Point2d> &allData)
-{
-    allData.push_back(cv::Point2d(-5,3));
-    allData.push_back(cv::Point2d(0,1));
-    allData.push_back(cv::Point2d(2,1));
-    allData.push_back(cv::Point2d(4,1));
-    allData.push_back(cv::Point2d(-4,1));
-    allData.push_back(cv::Point2d(-5,-3));
-}
-
-void FillData(std::vector<cv::Point2d> &allData)
-{
-    allData.push_back(cv::Point2d(0,0));
-    allData.push_back(cv::Point2d(1,2));
-    allData.push_back(cv::Point2d(2,2));
-    allData.push_back(cv::Point2d(3,2));
-    allData.push_back(cv::Point2d(3,3));
-    allData.push_back(cv::Point2d(4,4));
-    allData.push_back(cv::Point2d(10,2));
-}
-
-// y = mx + b
-cv::Point2d ComputeLineParams(const cv::Point2d& p1, const cv::Point2d& p2)
-{
-    if (p1.x == p2.x) return cv::Point2d(0,0);
-    // m
-    double m = (p1.y - p2.y)/(p1.x - p2.x);
-    // b
-    double b = p1.y - p1.x * m;
-    return cv::Point2d(m,b);
-}
-
-// yi - m * xi - b
-double ComputeLineDistance(const cv::Point2d& point, const cv::Point2d& model)
-{
-    return abs(point.y - model.x * point.x - model.y);
-}
-
-void LineFitFunctor(const std::vector<cv::Point2d> &allData,
-                    const std::vector<unsigned> &useIndices,
-                    std::vector<cv::Point2d> &fitModels)
-{
-    fitModels.push_back(lf::ComputeLineParams(allData[useIndices[0]], allData[useIndices[1]]));
-}
-
-void LineDistanceFunctor(const std::vector<cv::Point2d> &allData,
-                         const std::vector<cv::Point2d> &testModels,
-                         const double distanceThreshold,
-                         unsigned &out_bestModelIndex,
-                         std::vector<unsigned> &out_inlierIndices)
-{
-    out_bestModelIndex = 0;
-    int bestNumInliers = 0;
-    int currNumInliers = 0;
-
-    for(int idxModel = 0; idxModel < testModels.size(); idxModel++)
+    void FillAlmostUncontaminatedData(std::vector<cv::Point2d> &allData)
     {
-        currNumInliers = 0;
-        for(int idxData=0; idxData < allData.size(); idxData++)
+        allData.push_back(cv::Point2d(0,0));
+        allData.push_back(cv::Point2d(1,1));
+        allData.push_back(cv::Point2d(2,2));
+        allData.push_back(cv::Point2d(3,3));
+        allData.push_back(cv::Point2d(4,4));
+        allData.push_back(cv::Point2d(5,5));
+
+        allData.push_back(cv::Point2d(9,9));
+        allData.push_back(cv::Point2d(10,10));
+        allData.push_back(cv::Point2d(-2,-2));
+        allData.push_back(cv::Point2d(-3,-3));
+        allData.push_back(cv::Point2d(-5,-5));
+        allData.push_back(cv::Point2d(-4,-4));
+
+        // outliers
+        allData.push_back(cv::Point2d(-10,10));
+        allData.push_back(cv::Point2d(10,-10));
+    }
+
+    //TODO: to implemenent random generator of outliers at the square [ -10,-10; 10,10]
+    void AddOutliers(std::vector<cv::Point2d> &allData)
+    {
+        allData.push_back(cv::Point2d(-5,3));
+        allData.push_back(cv::Point2d(0,1));
+        allData.push_back(cv::Point2d(2,1));
+        allData.push_back(cv::Point2d(4,1));
+        allData.push_back(cv::Point2d(-4,1));
+        allData.push_back(cv::Point2d(-5,-3));
+    }
+
+    void FillData(std::vector<cv::Point2d> &allData)
+    {
+        allData.push_back(cv::Point2d(0,0));
+        allData.push_back(cv::Point2d(1,2));
+        allData.push_back(cv::Point2d(2,2));
+        allData.push_back(cv::Point2d(3,2));
+        allData.push_back(cv::Point2d(3,3));
+        allData.push_back(cv::Point2d(4,4));
+        allData.push_back(cv::Point2d(10,2));
+    }
+
+    // y = mx + b
+    cv::Point2d ComputeLineParams(const cv::Point2d& p1, const cv::Point2d& p2)
+    {
+        if (p1.x == p2.x) return cv::Point2d(0,0);
+        // m
+        double m = (p1.y - p2.y)/(p1.x - p2.x);
+        // b
+        double b = p1.y - p1.x * m;
+        return cv::Point2d(m,b);
+    }
+
+    // yi - m * xi - b
+    double ComputeLineDistance(const cv::Point2d& point, const cv::Point2d& model)
+    {
+        return abs(point.y - model.x * point.x - model.y);
+    }
+
+    void LineFitFunctor(const std::vector<cv::Point2d> &allData,
+        const std::vector<unsigned> &useIndices,
+        std::vector<cv::Point2d> &fitModels)
+    {
+        fitModels.push_back(lf::ComputeLineParams(allData[useIndices[0]], allData[useIndices[1]]));
+    }
+
+    void LineDistanceFunctor(const std::vector<cv::Point2d> &allData,
+        const std::vector<cv::Point2d> &testModels,
+        const double distanceThreshold,
+        unsigned &out_bestModelIndex,
+        std::vector<unsigned> &out_inlierIndices)
+    {
+        out_bestModelIndex = 0;
+        int bestNumInliers = 0;
+        int currNumInliers = 0;
+
+        for(int idxModel = 0; idxModel < testModels.size(); idxModel++)
         {
-            if ( ComputeLineDistance(allData[idxData], testModels[idxModel]) <= distanceThreshold)
+            currNumInliers = 0;
+            for(int idxData=0; idxData < allData.size(); idxData++)
             {
-               currNumInliers++;
+                if ( ComputeLineDistance(allData[idxData], testModels[idxModel]) <= distanceThreshold)
+                {
+                    currNumInliers++;
+                }
+            }
+
+            if(currNumInliers > bestNumInliers)
+            {
+                out_bestModelIndex = idxModel;
+                bestNumInliers = currNumInliers;
             }
         }
 
-        if(currNumInliers > bestNumInliers)
+        for(int idxData=0; idxData < allData.size(); idxData++)
         {
-            out_bestModelIndex = idxModel;
-            bestNumInliers = currNumInliers;
+            if ( ComputeLineDistance(allData[idxData], testModels[out_bestModelIndex]) <= distanceThreshold)
+            {
+                out_inlierIndices.push_back(idxData);
+            }
         }
     }
 
-    for(int idxData=0; idxData < allData.size(); idxData++)
+    // d = sqrt( (x1-x2)^2 + (y1-y2)^2 )
+    double euclideanDistance(cv::Point2d p1, cv::Point2d p2)
     {
-        if ( ComputeLineDistance(allData[idxData], testModels[out_bestModelIndex]) <= distanceThreshold)
-        {
-            out_inlierIndices.push_back(idxData);
-        }
+        return cv::norm(p1-p2);
     }
-}
-
-// d = sqrt( (x1-x2)^2 + (y1-y2)^2 )
-double euclideanDistance(cv::Point2d p1, cv::Point2d p2)
-{
-    return cv::norm(p1-p2);
-}
 }
