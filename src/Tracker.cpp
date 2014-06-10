@@ -262,8 +262,8 @@ void Tracker::GetAndDrawPointsForSolvePnP(
         controlPointsIter++;
         companionPointsIter++;
     }
-    namedWindow("Current: foundPoints", CV_WINDOW_AUTOSIZE);
-    imshow("Current: foundPoints", result);
+    //namedWindow("Current: foundPoints", CV_WINDOW_AUTOSIZE);
+    //imshow("Current: foundPoints", result);
 }
 
 void Tracker::RunSolvePnP(

@@ -92,7 +92,7 @@ int main(int argn, char* argv[])
         return 1;
     }
 
-    const int PointsPerEdge = 20;
+    const int PointsPerEdge = 15;
     Model model(videoInfo.GetCornerPoints(), PointsPerEdge, Camera_Matrix, Distortion_Coefficients, rVec, tVec, isLogsEnabled);
 
     int n = model.GetNumberControlPoints();
@@ -108,11 +108,11 @@ int main(int argn, char* argv[])
     //file_c.open ("../others/matlab_workspace/output/counts.txt");
     //file_c.close();
 
-#if 1
+#if 0
     CvRansacTracker tracker(model, isLogsEnabled, 100, 4, 110); // correct definition during the whole video (test_small_25.MOV)
     //file.open ("../others/matlab_workspace/output/perfomance/r_perfomance.txt");
 #else
-    PseudoRansacTracker tracker(model, isLogsEnabled, cv::Point3f(0.1,0.1,0.2), cv::Point3f(10,10,20), 500, 0.01, 0.01, 70, 4);
+    PseudoRansacTracker tracker(model, isLogsEnabled, cv::Point3f(0.1,0.1,0.2), cv::Point3f(10,10,20), 500, 0.01, 0.01, 25, 4);
     //file.open ("../others/matlab_workspace/output/perfomance/m_perfomance.txt");
     //file_p.open ("../others/matlab_workspace/output/precision/precision.txt");
     //file_p.close();
@@ -160,7 +160,7 @@ int main(int argn, char* argv[])
 
             precision = tracker.GetConvergenceMeasure(prevModel, model, NORM_INF);
 
-            workFrame = model.Outline(workFrame);
+            workFrame = model.Outline(workFrame, false);
             model.DrawReferencePoints(workFrame, patternOrigin3D, cap.get(CV_CAP_PROP_POS_FRAMES), i);
 
             imshow(nextWindowName, workFrame);
@@ -205,9 +205,9 @@ bool EstimateInititalPose(const Mat& circlesImage,
     cout << "boardPoints" << endl << boardPoints << endl;
     found = findCirclesGrid(circlesImage, boardSize, foundBoardCorners, 2);
 
-    Mat view = circlesImage.clone();
-    drawChessboardCorners( view, boardSize, foundBoardCorners, found );
-    imshow("drawChessboardCorners", view);
+    //Mat view = circlesImage.clone();
+    //drawChessboardCorners( view, boardSize, foundBoardCorners, found );
+    //imshow("drawChessboardCorners", view);
 
     if (found)
     {

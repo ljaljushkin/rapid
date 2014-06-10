@@ -191,20 +191,20 @@ Mat Model::Outline(const Mat&   source,
     Mat result = source.clone();
 
     // drawing edges
-    line(result, Project(cornerPoints[0]), Project(cornerPoints[1]), color, 1, 8);
-    line(result, Project(cornerPoints[1]), Project(cornerPoints[2]), color, 1, 8);
-    line(result, Project(cornerPoints[2]), Project(cornerPoints[3]), color, 1, 8);
-    line(result, Project(cornerPoints[0]), Project(cornerPoints[4]), color, 1, 8);
+    line(result, Project(cornerPoints[0]), Project(cornerPoints[1]), color, 3, 8);
+    line(result, Project(cornerPoints[1]), Project(cornerPoints[2]), color, 3, 8);
+    line(result, Project(cornerPoints[2]), Project(cornerPoints[3]), color, 3, 8);
+    line(result, Project(cornerPoints[0]), Project(cornerPoints[4]), color, 3, 8);
 
-    line(result, Project(cornerPoints[4]), Project(cornerPoints[5]), color, 1, 8);
-    line(result, Project(cornerPoints[5]), Project(cornerPoints[6]), color, 1, 8);
-    line(result, Project(cornerPoints[6]), Project(cornerPoints[7]), color, 1, 8);
-    line(result, Project(cornerPoints[7]), Project(cornerPoints[4]), color, 1, 8);
+    line(result, Project(cornerPoints[4]), Project(cornerPoints[5]), color, 3, 8);
+    line(result, Project(cornerPoints[5]), Project(cornerPoints[6]), color, 3, 8);
+    line(result, Project(cornerPoints[6]), Project(cornerPoints[7]), color, 3, 8);
+    line(result, Project(cornerPoints[7]), Project(cornerPoints[4]), color, 3, 8);
 
-    line(result, Project(cornerPoints[0]), Project(cornerPoints[3]), color, 1, 8);
-    line(result, Project(cornerPoints[1]), Project(cornerPoints[5]), color, 1, 8);
-    line(result, Project(cornerPoints[2]), Project(cornerPoints[6]), color, 1, 8);
-    line(result, Project(cornerPoints[3]), Project(cornerPoints[7]), color, 1, 8);
+    line(result, Project(cornerPoints[0]), Project(cornerPoints[3]), color, 3, 8);
+    line(result, Project(cornerPoints[1]), Project(cornerPoints[5]), color, 3, 8);
+    line(result, Project(cornerPoints[2]), Project(cornerPoints[6]), color, 3, 8);
+    line(result, Project(cornerPoints[3]), Project(cornerPoints[7]), color, 3, 8);
 
     if (isDrawControlPoints)
     {
