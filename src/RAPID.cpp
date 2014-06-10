@@ -92,7 +92,7 @@ int main(int argn, char* argv[])
         return 1;
     }
 
-    const int PointsPerEdge = 15;
+    const int PointsPerEdge = 20;
     Model model(videoInfo.GetCornerPoints(), PointsPerEdge, Camera_Matrix, Distortion_Coefficients, rVec, tVec, isLogsEnabled);
 
     int n = model.GetNumberControlPoints();
@@ -108,7 +108,7 @@ int main(int argn, char* argv[])
     //file_c.open ("../others/matlab_workspace/output/counts.txt");
     //file_c.close();
 
-#if 0
+#if 1
     CvRansacTracker tracker(model, isLogsEnabled, 100, 4, 110); // correct definition during the whole video (test_small_25.MOV)
     //file.open ("../others/matlab_workspace/output/perfomance/r_perfomance.txt");
 #else
