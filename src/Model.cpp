@@ -148,16 +148,16 @@ Point2d Model::Project(const Mat& _3DPoint) const
     return projectedPoints[0];
 }
 
-void Model::DrawReferencePoints(const Mat& source, Mat& patternOrigin3D, int numFrame, int numIter)
+void Model::DrawReferencePoints(Mat& source, Mat& patternOrigin3D, int numFrame, int numIter)
 {
-    Mat view = source.clone();
+    //Mat view = source.clone();
 
     std::stringstream ss;
     std::string text;
     ss << numFrame <<":"<<numIter+1;
     text = ss.str();
 
-    putText(view, text, cvPoint(70,30), FONT_HERSHEY_SIMPLEX, 1.5, Scalar(0,255,0), 3);
+    putText(source, text, cvPoint(70,30), FONT_HERSHEY_SIMPLEX, 1.5, Scalar(0,255,0), 3);
 
     Mat boxOrigibPoint3D = Mat::zeros(3, 1, CV_64F);
     Mat boxOrigibPoint2D = Mat::zeros(2, 1, CV_64F);
@@ -170,12 +170,12 @@ void Model::DrawReferencePoints(const Mat& source, Mat& patternOrigin3D, int num
     Point2d patternCenter(patternOrigin2D.at<double>(0,0), patternOrigin2D.at<double>(0,1));
 
     //draw box's reference point
-    circle(view, boxCenter, 2, Scalar(0,0,255), 2); //red
+    circle(source, boxCenter, 2, Scalar(0,0,255), 2); //red
     //draw pattern's reference point
-    circle(view, patternCenter, 2, Scalar(0,255,0), 2); //green
+    circle(source, patternCenter, 2, Scalar(0,255,0), 2); //green
 
-    namedWindow("DrawReferencePoints", CV_WINDOW_AUTOSIZE);
-    imshow("DrawReferencePoints", view);
+    //namedWindow("DrawReferencePoints", CV_WINDOW_AUTOSIZE);
+    //imshow("DrawReferencePoints", view);
 
     if (isLogsEnabled)
     {
@@ -275,13 +275,13 @@ void Model::SetControlPoints()
     //AddControlPointsFromTheEdge(2, 3);
     AddControlPointsFromTheEdge(0, 4);
 
-    //AddControlPointsFromTheEdge(4, 5);
+    AddControlPointsFromTheEdge(4, 5); //very bad after 45
     AddControlPointsFromTheEdge(5, 6);
-    //AddControlPointsFromTheEdge(6, 7);
+    AddControlPointsFromTheEdge(6, 7);
     AddControlPointsFromTheEdge(7, 4);
 
     AddControlPointsFromTheEdge(0, 3);
-    AddControlPointsFromTheEdge(1, 5);
+    AddControlPointsFromTheEdge(1, 5); // not bad - 61
     //AddControlPointsFromTheEdge(2, 6);
     AddControlPointsFromTheEdge(3, 7);
 }

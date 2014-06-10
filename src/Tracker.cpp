@@ -226,14 +226,14 @@ void Tracker::GetAndDrawPointsForSolvePnP(
     {
         Point2d r = model.Project(*controlPointsIter);
         Point2d s = model.Project(*companionPointsIter);
-#if 0 
+#if 1
         if (FindPoints(r, s, edges, foundPoint, foundPoint2))
         {
             out_foundBoxPoints2D.push_back((Point2f)foundPoint);
 
-            //circle(result, foundPoint, 4, Scalar(0,0,255));
-            //circle(result, foundPoint2, 4, Scalar(255,0,255));
-            //line(result, foundPoint, r, Scalar(0,255,0), 1, 8);
+            circle(result, foundPoint, 4, Scalar(0,0,255));
+            circle(result, foundPoint2, 4, Scalar(255,0,255));
+            line(result, foundPoint, r, Scalar(0,255,0), 1, 8);
 
             double Px = (*controlPointsIter).at<double>(0,0);
             double Py = (*controlPointsIter).at<double>(0,1);
@@ -262,8 +262,8 @@ void Tracker::GetAndDrawPointsForSolvePnP(
         controlPointsIter++;
         companionPointsIter++;
     }
-    //namedWindow("Current: foundPoints", CV_WINDOW_AUTOSIZE);
-    //imshow("Current: foundPoints", result);
+    namedWindow("Current: foundPoints", CV_WINDOW_AUTOSIZE);
+    imshow("Current: foundPoints", result);
 }
 
 void Tracker::RunSolvePnP(

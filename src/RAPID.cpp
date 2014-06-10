@@ -92,7 +92,7 @@ int main(int argn, char* argv[])
         return 1;
     }
 
-    const int PointsPerEdge = 7;
+    const int PointsPerEdge = 15;
     Model model(videoInfo.GetCornerPoints(), PointsPerEdge, Camera_Matrix, Distortion_Coefficients, rVec, tVec, isLogsEnabled);
 
     int n = model.GetNumberControlPoints();
@@ -109,10 +109,10 @@ int main(int argn, char* argv[])
     //file_c.close();
 
 #if 0
-    CvRansacTracker tracker(model, isLogsEnabled, 100, 4, 30); // correct definition during the whole video (test_small_25.MOV)
+    CvRansacTracker tracker(model, isLogsEnabled, 100, 4, 110); // correct definition during the whole video (test_small_25.MOV)
     //file.open ("../others/matlab_workspace/output/perfomance/r_perfomance.txt");
 #else
-    PseudoRansacTracker tracker(model, isLogsEnabled, cv::Point3f(0.1,0.1,0.2), cv::Point3f(10,10,20), 500, 0.01, 0.01, 50, 4);
+    PseudoRansacTracker tracker(model, isLogsEnabled, cv::Point3f(0.1,0.1,0.2), cv::Point3f(10,10,20), 500, 0.01, 0.01, 70, 4);
     //file.open ("../others/matlab_workspace/output/perfomance/m_perfomance.txt");
     //file_p.open ("../others/matlab_workspace/output/precision/precision.txt");
     //file_p.close();
@@ -124,7 +124,7 @@ int main(int argn, char* argv[])
     namedWindow(nextWindowName, CV_WINDOW_AUTOSIZE);
     //namedWindow(currentWindowName, CV_WINDOW_AUTOSIZE);
 
-    const int iterationsThreshold = 9;
+    const int iterationsThreshold = 7;
     const double precisionFreshold = 0.1;
 
     //cvflann::StartStopTimer timer;
@@ -161,9 +161,10 @@ int main(int argn, char* argv[])
             precision = tracker.GetConvergenceMeasure(prevModel, model, NORM_INF);
 
             workFrame = model.Outline(workFrame);
+            model.DrawReferencePoints(workFrame, patternOrigin3D, cap.get(CV_CAP_PROP_POS_FRAMES), i);
+
             imshow(nextWindowName, workFrame);
 
-            model.DrawReferencePoints(movieFrame, patternOrigin3D, cap.get(CV_CAP_PROP_POS_FRAMES), i);
             waitKey(1);
         }
         //totalTime+=timePerFrame;
