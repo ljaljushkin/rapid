@@ -226,13 +226,14 @@ void Tracker::GetAndDrawPointsForSolvePnP(
     {
         Point2d r = model.Project(*controlPointsIter);
         Point2d s = model.Project(*companionPointsIter);
+#if 0 
         if (FindPoints(r, s, edges, foundPoint, foundPoint2))
         {
             out_foundBoxPoints2D.push_back((Point2f)foundPoint);
 
-            circle(result, foundPoint, 4, Scalar(0,0,255));
-            circle(result, foundPoint2, 4, Scalar(255,0,255));
-            line(result, foundPoint, r, Scalar(0,255,0), 1, 8);
+            //circle(result, foundPoint, 4, Scalar(0,0,255));
+            //circle(result, foundPoint2, 4, Scalar(255,0,255));
+            //line(result, foundPoint, r, Scalar(0,255,0), 1, 8);
 
             double Px = (*controlPointsIter).at<double>(0,0);
             double Py = (*controlPointsIter).at<double>(0,1);
@@ -247,12 +248,22 @@ void Tracker::GetAndDrawPointsForSolvePnP(
             line(result, foundPoint, foundPoint2, Scalar(0,255,0), 1, 8);
             line(result, foundPoint, r, Scalar(255,0,0), 1, 8);
         }
+#else
+        if(FindPoints(r, s, edges, foundPoint, foundPoint2))
+        {
+            out_foundBoxPoints2D.push_back((Point2f)foundPoint);
+            double Px = (*controlPointsIter).at<double>(0,0);
+            double Py = (*controlPointsIter).at<double>(0,1);
+            double Pz = (*controlPointsIter).at<double>(0,2);
+            out_modelPoints3D.push_back(Point3f(Px, Py, Pz));
+        }
+#endif
 
         controlPointsIter++;
         companionPointsIter++;
     }
-    namedWindow("Current: foundPoints", CV_WINDOW_AUTOSIZE);
-    imshow("Current: foundPoints", result);
+    //namedWindow("Current: foundPoints", CV_WINDOW_AUTOSIZE);
+    //imshow("Current: foundPoints", result);
 }
 
 void Tracker::RunSolvePnP(
@@ -262,12 +273,14 @@ void Tracker::RunSolvePnP(
     Mat& out_tvec) const
 {
     solvePnP(Mat(modelPoints3D), Mat(foundBoxPoints2D), model.cameraMatrix,model.distortionCoefficients, out_rvec, out_tvec, false);
+#if 0
     if (isLogsEnabled)
     {
         //cout << "---(SolvePnP) rotate vector" << endl << rvec << endl << "---(SolvePnP) translate vector=" << endl << tvec << endl;
         cout << "---(SolvePnP) delta rotate vector" << endl << out_rvec - model.rotationVector<< endl;
         cout << "---(SolvePnP) delta translate vector=" << endl << out_tvec - model.translateVector << endl << endl;
     }
+#endif
 }
 
 Model Tracker::ProcessFrame(const Mat& frame)

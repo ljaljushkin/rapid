@@ -92,7 +92,7 @@ int main(int argn, char* argv[])
         return 1;
     }
 
-    const int PointsPerEdge = 10;
+    const int PointsPerEdge = 7;
     Model model(videoInfo.GetCornerPoints(), PointsPerEdge, Camera_Matrix, Distortion_Coefficients, rVec, tVec, isLogsEnabled);
 
     int n = model.GetNumberControlPoints();
@@ -103,60 +103,60 @@ int main(int argn, char* argv[])
 
     //CvRansacTracker tracker(model, isLogsEnabled, 10, 0.5, 1);
 
-    std::ofstream file,file_p,file_c;
+    //std::ofstream file,file_p,file_c;
 
-    file_c.open ("../others/matlab_workspace/output/counts.txt");
-    file_c.close();
+    //file_c.open ("../others/matlab_workspace/output/counts.txt");
+    //file_c.close();
 
-#if 1
-    CvRansacTracker tracker(model, isLogsEnabled, 100, 4, 50); // correct definition during the whole video (test_small_25.MOV)
-    file.open ("../others/matlab_workspace/output/perfomance/r_perfomance.txt");
+#if 0
+    CvRansacTracker tracker(model, isLogsEnabled, 100, 4, 30); // correct definition during the whole video (test_small_25.MOV)
+    //file.open ("../others/matlab_workspace/output/perfomance/r_perfomance.txt");
 #else
-    PseudoRansacTracker tracker(model, isLogsEnabled, cv::Point3f(0.1,0.1,0.2), cv::Point3f(10,10,20), 500, 0.01, 0.01, 60, 4);
-    file.open ("../others/matlab_workspace/output/perfomance/m_perfomance.txt");
-    file_p.open ("../others/matlab_workspace/output/precision/precision.txt");
-    file_p.close();
+    PseudoRansacTracker tracker(model, isLogsEnabled, cv::Point3f(0.1,0.1,0.2), cv::Point3f(10,10,20), 500, 0.01, 0.01, 50, 4);
+    //file.open ("../others/matlab_workspace/output/perfomance/m_perfomance.txt");
+    //file_p.open ("../others/matlab_workspace/output/precision/precision.txt");
+    //file_p.close();
 #endif
 
     const std::string nextWindowName = "Next";
     const std::string currentWindowName = "Current";
 
     namedWindow(nextWindowName, CV_WINDOW_AUTOSIZE);
-    namedWindow(currentWindowName, CV_WINDOW_AUTOSIZE);
+    //namedWindow(currentWindowName, CV_WINDOW_AUTOSIZE);
 
-    const int iterationsThreshold = 4;
-    const double precisionFreshold = 0.2;
+    const int iterationsThreshold = 9;
+    const double precisionFreshold = 0.1;
 
-    cvflann::StartStopTimer timer;
+    //cvflann::StartStopTimer timer;
     double timePerFrame, totalTime = 0;
 
     while (cap.read(movieFrame))
     {
         double precision = DBL_MAX;
         timePerFrame = 0;
-        timer.reset();
+        //timer.reset();
         int i;
 
-        std::ofstream file2;
-        file2.open ("../others/matlab_workspace/output/counts.txt", std::ios::app);
-        file2 << "-----------------" <<std::endl;
-        file2.close();
+        //std::ofstream file2;
+        //file2.open ("../others/matlab_workspace/output/counts.txt", std::ios::app);
+        //file2 << "-----------------" <<std::endl;
+        //file2.close();
 
         for(i = 0; (precision > precisionFreshold) && ( i < iterationsThreshold); i++)
         {
             Mat workFrame = movieFrame.clone();
 
-            tracker.SetExtraImage(workFrame);
+            //tracker.SetExtraImage(workFrame);
 
-            Mat prev = model.Outline(workFrame);
-            imshow(currentWindowName, prev);
+            //Mat prev = model.Outline(workFrame);
+            //imshow(currentWindowName, prev);
 
             Model prevModel = model;
 
-            timer.start();
+            //timer.start();
             model = tracker.ProcessFrame(workFrame);
-            timer.stop();
-            timePerFrame += timer.value;
+            //timer.stop();
+            //timePerFrame += timer.value;
 
             precision = tracker.GetConvergenceMeasure(prevModel, model, NORM_INF);
 
@@ -166,10 +166,10 @@ int main(int argn, char* argv[])
             model.DrawReferencePoints(movieFrame, patternOrigin3D, cap.get(CV_CAP_PROP_POS_FRAMES), i);
             waitKey(1);
         }
-        totalTime+=timePerFrame;
-        file <<  totalTime << ",    "<<i<<endl;
+        //totalTime+=timePerFrame;
+        //file <<  totalTime << ",    "<<i<<endl;
     }
-    file.close();
+    //file.close();
 
     return 0;
 }
